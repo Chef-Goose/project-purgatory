@@ -14,6 +14,15 @@ config/name="ProjectPurgatory"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+DialogueManager="*uid://c3rodes2l3gxb"
+Conductor="*uid://c5rvmkaorxynb"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/GodotSavesAddon/plugin.cfg", "res://addons/conductor/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg")
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
