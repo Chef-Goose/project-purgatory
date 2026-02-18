@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://ulga4u07lq5y"]
+
+[ext_resource type="Texture2D" uid="uid://b5xe1cejnw1n0" path="res://assets/sprites/Table and Hands.png" id="1_sr0d8"]
+[ext_resource type="PackedScene" uid="uid://d2vfqorl1hin" path="res://scenes/levels/card.tscn" id="2_3yje6"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wk575"]
+texture = ExtResource("1_sr0d8")
+0:0/size_in_atlas = Vector2i(96, 54)
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_yok5t"]
+sources/3 = SubResource("TileSetAtlasSource_wk575")
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bndc0"]
+size = Vector2(761, 445)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sr0d8"]
+size = Vector2(774.5, 446)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3yje6"]
+size = Vector2(1541, 419)
+
+[node name="table" type="Node2D" unique_id=33346175]
+
+[node name="scene" type="TileMapLayer" parent="." unique_id=1006260187]
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0)
+tile_set = SubResource("TileSet_yok5t")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1051797375]
+zoom = Vector2(0.8, 0.8)
+
+[node name="leftHandArea" type="Area2D" parent="." unique_id=194190911]
+
+[node name="leftHandShape" type="CollisionShape2D" parent="leftHandArea" unique_id=1958833634]
+position = Vector2(-380.5, 217.5)
+shape = SubResource("RectangleShape2D_bndc0")
+
+[node name="rightHandArea" type="Area2D" parent="." unique_id=1333376257]
+
+[node name="rightHandShape" type="CollisionShape2D" parent="rightHandArea" unique_id=2029259229]
+position = Vector2(387.25, 218)
+shape = SubResource("RectangleShape2D_sr0d8")
+
+[node name="tableArea" type="Area2D" parent="." unique_id=446073921]
+
+[node name="tableShape" type="CollisionShape2D" parent="tableArea" unique_id=421768056]
+position = Vector2(8.5, -214.5)
+shape = SubResource("RectangleShape2D_3yje6")
+
+[node name="cardA" parent="." unique_id=396578719 instance=ExtResource("2_3yje6")]
+position = Vector2(-352, -152)
+
+[node name="cardB" parent="." unique_id=1909657811 instance=ExtResource("2_3yje6")]
+position = Vector2(-4, -164)
+
+[node name="cardC" parent="." unique_id=318108419 instance=ExtResource("2_3yje6")]
+position = Vector2(421, -150)
