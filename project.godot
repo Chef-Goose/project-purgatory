@@ -19,6 +19,7 @@ config/icon="res://assets/sprites/icon.svg"
 
 DialogueManager="*uid://c3rodes2l3gxb"
 Conductor="*uid://c5rvmkaorxynb"
+ZIndexHandler="*uid://fcogjrm0vwlp"
 
 [editor_plugins]
 

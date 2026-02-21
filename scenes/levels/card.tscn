@@ -15,11 +15,14 @@ scale = Vector2(0.75, 0.75)
 texture = ExtResource("1_tlfws")
 
 [node name="Area2D" type="Area2D" parent="." unique_id=1549682309]
+collision_layer = 8
+collision_mask = 15
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=821658328]
 scale = Vector2(0.75, 0.75)
 shape = SubResource("RectangleShape2D_fw4gr")
 
-[connection signal="area_shape_exited" from="Area2D" to="." method="_on_area_2d_area_shape_exited"]
+[connection signal="area_entered" from="Area2D" to="." method="_on_area_2d_area_entered"]
+[connection signal="area_exited" from="Area2D" to="." method="_on_area_2d_area_exited"]
 [connection signal="mouse_shape_entered" from="Area2D" to="." method="_on_area_2d_mouse_shape_entered"]
 [connection signal="mouse_shape_exited" from="Area2D" to="." method="_on_area_2d_mouse_shape_exited"]
