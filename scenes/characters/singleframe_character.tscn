@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cphh3cndix5bi"]
 
 [node name="CanvasLayer" type="CanvasLayer" unique_id=1314259860]
+layer = 0
 
 [node name="Control" type="Control" parent="." unique_id=754219547]
 layout_mode = 3

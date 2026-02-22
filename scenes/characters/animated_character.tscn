@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://chvimvhopl60x"]
 
 [node name="CanvasLayer" type="CanvasLayer" unique_id=340268911]
+layer = 0
 
 [node name="Control" type="Control" parent="." unique_id=820391171]
 layout_mode = 3
