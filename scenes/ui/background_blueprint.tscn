@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://bkrpy1okbkhyd"]
+
+[node name="Background" type="Node2D" unique_id=1507934827]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=223056497]
+layer = -1
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer" unique_id=1604203987]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

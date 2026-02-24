@@ -1,0 +1,112 @@
+[gd_scene format=3 uid="uid://bxfd2cbdoulmn"]
+
+[ext_resource type="Theme" uid="uid://co3onxdl2vgqt" path="res://scenes/ui/UI_theme.tres" id="1_y3syv"]
+[ext_resource type="Script" uid="uid://g32um0mltv5d" path="res://addons/dialogue_manager/dialogue_label.gd" id="2_sd0pw"]
+[ext_resource type="Resource" uid="uid://de5nockmmegqu" path="res://scripts/dialogue/tester.dialogue" id="3_awmck"]
+[ext_resource type="Script" uid="uid://b7ukmeguylxbe" path="res://scripts/dialogue/dialogue_ui.gd" id="3_tjfo0"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_sd0pw"]
+line_spacing = 0.0
+font_size = 35
+
+[node name="DialogueUI" type="Control" unique_id=995318328]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_y3syv")
+script = ExtResource("3_tjfo0")
+dialogue_resource = ExtResource("3_awmck")
+auto_start = true
+
+[node name="TextBox" type="PanelContainer" parent="." unique_id=3825422]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="RichTextLabel" type="RichTextLabel" parent="TextBox" unique_id=189485240]
+layout_mode = 2
+bbcode_enabled = true
+text = "Example text"
+script = ExtResource("2_sd0pw")
+seconds_per_step = 0.03
+skip_pause_at_abbreviations = PackedStringArray("Mr", "Mrs", "Ms", "Dr", "etc", "eg", "ex")
+metadata/_custom_type_script = "uid://g32um0mltv5d"
+
+[node name="SpeakerBox" type="Control" parent="." unique_id=878052570]
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -200.0
+offset_right = 250.0
+offset_bottom = -150.0
+grow_vertical = 0
+
+[node name="Polygon2D" type="Polygon2D" parent="SpeakerBox" unique_id=210864370]
+color = Color(0.85882354, 0.8, 0.58431375, 1)
+polygon = PackedVector2Array(0, 0, 0, 50, 250, 50, 200, 0)
+
+[node name="Label" type="Label" parent="SpeakerBox" unique_id=1695914828]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -109.0
+offset_top = -24.0
+offset_right = 74.0
+offset_bottom = 46.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Example"
+label_settings = SubResource("LabelSettings_sd0pw")
+horizontal_alignment = 3
+vertical_alignment = 3
+
+[node name="ResponsesMenu" type="VBoxContainer" parent="." unique_id=579540426]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -290.5
+offset_top = -200.0
+offset_right = 290.5
+offset_bottom = -130.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="ResponseTemplate" type="Button" parent="ResponsesMenu" unique_id=840418260]
+visible = false
+layout_mode = 2
+text = "Response"
+
+[node name="Control" type="Control" parent="." unique_id=1669078484]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -40.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Polygon2D" type="Polygon2D" parent="Control" unique_id=1586944738]
+position = Vector2(1, -25)
+color = Color(0.47007585, 0.47007585, 0.47007585, 1)
+polygon = PackedVector2Array(0, 0, 20, 20, 0, 40)
