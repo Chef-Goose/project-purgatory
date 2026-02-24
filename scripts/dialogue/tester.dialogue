@@ -1,11 +1,17 @@
 ~ start
-Nathan: [[Hi|Hello|Howdy]], this is some dialogue.
-Nathan: Here are some choices.
-- First one
-	Nathan: You picked the first one.
-- Second one
-	Nathan: You picked the second one.
-- Start again => start
-- End the conversation => END
-Nathan: For more information see the online documentation.
+God: [[Hi|Hello|Howdy]], so you wanted to be a purgatory guy huh?
+God: Well, it's tough work sifting through this mess I made unfortunatley.
+God: Turns out this whole [wave amp=25 freq=10]free will[/wave] thing I gave out wasn't such a good idea. [#force_scroll=1]
+- Free will is what makes us human though.
+	God: I guess.
+	God: It's just a lot of paperwork...
+- Yeah! Down with free will!
+	God: Yeah.
+	God: [font_size=20]You're probably right. 
+	
+	God: [font_size=20]I was in over my head :(
+- Sorry I did not hear you.
+	God: Oh jesus christ. I'll say it again. => start
+- ... 
+	God: Okay. Fuck you too then. => END
 => END
