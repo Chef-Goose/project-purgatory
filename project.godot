@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="ProjectPurgatory"
-run/main_scene="uid://bxov87vsotkum"
+run/main_scene="uid://bx3x02iv2rcnw"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://assets/sprites/icon.svg"
 
