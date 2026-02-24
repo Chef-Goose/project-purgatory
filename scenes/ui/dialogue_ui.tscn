@@ -34,6 +34,7 @@ grow_vertical = 0
 [node name="RichTextLabel" type="RichTextLabel" parent="TextBox" unique_id=189485240]
 layout_mode = 2
 bbcode_enabled = true
+text = "Example text"
 script = ExtResource("2_sd0pw")
 seconds_per_step = 0.03
 skip_pause_at_abbreviations = PackedStringArray("Mr", "Mrs", "Ms", "Dr", "etc", "eg", "ex")
