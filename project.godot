@@ -19,9 +19,17 @@ config/icon="res://assets/sprites/icon.svg"
 DialogueManager="*uid://c3rodes2l3gxb"
 Conductor="*uid://c5rvmkaorxynb"
 
+[dialogue_manager]
+
+runtime/balloon_path="uid://bxfd2cbdoulmn"
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/GodotSavesAddon/plugin.cfg", "res://addons/conductor/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg")
+
+[internationalization]
+
+locale/translations_pot_files=PackedStringArray("res://scripts/dialogue/tester.dialogue")
 
 [physics]
 
