@@ -1,17 +1,17 @@
 ~ start
-God: [[Hi|Hello|Howdy|Sup human]], so you wanted to be a purgatory guy huh?
-God: Well, it's tough work sifting through this mess I made unfortunatley.
-God: Turns out this whole [wave amp=25 freq=10]free will[/wave] thing I gave out wasn't such a good idea. [#force_scroll=1]
+God: [[Hi|Hello|Howdy|Sup human]]. Welcome to Purgatory!
+God: We are excited to invite you on as a new member of the team.
+God: Unfortunately, It's tough work sifting through this mess I made.
+God: Turns out this whole [wave amp=25 freq=10]free will[/wave] thing I gave out wasn't such a good idea.
+- Sorry I did not hear you.
+	God: Oh jesus christ. I'll say it again. => start 
 - Free will is what makes us human though.
 	God: I guess.
-	God: It's just a lot of paperwork...
+	God: It's just a lot of paperwork...[#force_scroll=1]
 - Yeah! Down with free will!
 	God: Yeah.
-	God: [font_size=20]You're probably right. 
-	
-	God: [font_size=20]I was in over my head :(
-- Sorry I did not hear you.
-	God: Oh jesus christ. I'll say it again. => start
+	God: [font_size=20]You're probably right. [#force_scroll=1]
+	God: [font_size=20]I was in over my head :([#force_scroll=1]
 - ... 
-	God: Okay. Fuck you too then. => END
+	God: Okay. Fuck you too then. You're fired. => END
 => END

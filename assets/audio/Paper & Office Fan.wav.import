@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cdkqtrmyvy36j"
+path="res://.godot/imported/Paper & Office Fan.wav-e3eb1842c5aee93bf35624f8cbf7afe9.sample"
+
+[deps]
+
+source_file="res://assets/audio/Paper & Office Fan.wav"
+dest_files=["res://.godot/imported/Paper & Office Fan.wav-e3eb1842c5aee93bf35624f8cbf7afe9.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2
