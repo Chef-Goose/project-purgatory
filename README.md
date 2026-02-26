@@ -9,5 +9,5 @@ Godot 4.6
 
 ## Rules
 - Do not commit .godot/
-- Do not edit scenes you don’t own
+- Do not edit scenes you aren't assigned to unless everyone is aware
 - One feature per branch
