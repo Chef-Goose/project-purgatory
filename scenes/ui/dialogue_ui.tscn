@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://bxfd2cbdoulmn"]
+[gd_scene format=3 uid="uid://1sdpebm0q8rq"]
 
-[ext_resource type="Theme" uid="uid://co3onxdl2vgqt" path="res://scenes/ui/UI_theme.tres" id="1_y3syv"]
+[ext_resource type="Theme" uid="uid://5wpinp7fdeih" path="res://scenes/ui/UI_theme.tres" id="1_y3syv"]
 [ext_resource type="Script" uid="uid://g32um0mltv5d" path="res://addons/dialogue_manager/dialogue_label.gd" id="2_sd0pw"]
 [ext_resource type="Resource" uid="uid://de5nockmmegqu" path="res://scripts/dialogue/tester.dialogue" id="3_awmck"]
 [ext_resource type="Script" uid="uid://b7ukmeguylxbe" path="res://scripts/dialogue/dialogue_ui.gd" id="3_tjfo0"]
