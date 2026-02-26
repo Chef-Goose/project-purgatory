@@ -16,7 +16,8 @@ var isOver : bool
 var dragging : bool = false
 var thisCardInLeftHand : bool = false
 var thisCardInRightHand : bool = false
-var collideLayer : int
+var isColliding: bool = false
+var cardsTouching: int = 0
 
 enum floating {overTable, overLeftHand, overRightHand, overNothing}
 var cardFloating : floating = floating.overTable
@@ -34,15 +35,14 @@ func _ready() -> void:
 		paperType.texture = paperC
 	# End ---------------------------------------------------------------------
 		
-	# Enables a setting that forces the top card only to be selected when cards are overlaping
+	# Enables a setting that forces the only the top card to be selected when cards are overlaping
 	get_viewport().physics_object_picking_sort = true
 	get_viewport().physics_object_picking_first_only = true
-	
 	previousPosition = position
 	
+# Tracks if the mouse is over the card
 func _on_area_2d_mouse_shape_entered(shape_idx: int) -> void:
 	isOver = true
-
 func _on_area_2d_mouse_shape_exited(shape_idx: int) -> void:
 	isOver = false
 
@@ -53,6 +53,7 @@ func _physics_process(delta: float) -> void:
 	placement_handler()
 	mousePosition = get_global_mouse_position()
 
+# Moves the card to the position of the mouse and handles if the card is being dragged
 func drag_handler():
 	if dragging and mouseDifference != Vector2.ZERO:
 		global_position -= mouseDifference
@@ -62,53 +63,63 @@ func drag_handler():
 	elif dragging and Input.is_action_just_released("leftClick"):
 		dragging = false
 
+# Handles what position the card is in before it is placed down by the player
 func hand_handler():
-	if dragging == false and cardFloating == floating.overRightHand:
+	if !dragging and cardFloating == floating.overRightHand:
 		cardStates = states.inRightHand
-	elif dragging == false and cardFloating == floating.overLeftHand:
+	elif !dragging and cardFloating == floating.overLeftHand:
 		cardStates = states.inLeftHand
-	elif dragging == false and (cardFloating == floating.overTable or cardFloating == floating.overNothing):
+	elif !dragging and (cardFloating == floating.overTable or cardFloating == floating.overNothing):
 		cardStates = states.onTable
 
+# Handles where the card will be placed when let go of by the player
 func placement_handler():
-	if dragging == false and cardStates == states.inRightHand:
+	if !dragging and cardStates == states.inRightHand:
 		position = rightHandPosition
 		CardHandler.rightHandEmpty = false
 		thisCardInRightHand = true
-	elif dragging == false and cardStates == states.inLeftHand:
+	elif !dragging and cardStates == states.inLeftHand:
 		position = leftHandPosition
 		CardHandler.leftHandEmpty = false
 		thisCardInLeftHand = true
-	elif dragging == false and cardFloating == floating.overTable:
+	elif !dragging and cardFloating == floating.overTable:
 		previousPosition = position
-	elif dragging == false and cardFloating == floating.overNothing:
+	elif !dragging and cardFloating == floating.overNothing:
 		position = previousPosition
 	
-	if cardStates != states.inRightHand and CardHandler.rightHandEmpty == false and thisCardInRightHand == true:
+	if cardStates != states.inRightHand and !CardHandler.rightHandEmpty and thisCardInRightHand:
 		CardHandler.rightHandEmpty = true
 		thisCardInRightHand = false
 	
-	if cardStates != states.inLeftHand and CardHandler.leftHandEmpty == false and thisCardInLeftHand == true:
+	if cardStates != states.inLeftHand and !CardHandler.leftHandEmpty and thisCardInLeftHand:
 		CardHandler.leftHandEmpty = true
 		thisCardInLeftHand = false
 
+# Checks what layer the card has collided with and changes the state to the appropriate position
 func _on_area_2d_area_entered(area: Area2D) -> void:
-	# Checks if the card has collided with the layer that the right hands collision is set to
-	if area.get_collision_layer_value(3) == true and CardHandler.rightHandEmpty == true:
+	if area.get_collision_layer_value(3) and CardHandler.rightHandEmpty:
 		cardFloating = floating.overRightHand
-	# Checks if the card has collided with the layer that the left hands collision is set to
-	elif area.get_collision_layer_value(2) == true and CardHandler.leftHandEmpty == true:
+	elif area.get_collision_layer_value(2) and CardHandler.leftHandEmpty:
 		cardFloating = floating.overLeftHand
-	# Checks if the card has collided with the layer that the table is set to
-	elif area.get_collision_layer_value(1) == true:
+	elif area.get_collision_layer_value(1):
 		cardFloating = floating.overTable
-
+	
 	# Changes the z_index of the most recently set card to the top if it collides with another card
-	elif area.get_collision_layer_value(4) == true and dragging:
-		CardHandler.masterZ_Index += 1
-		z_index = CardHandler.masterZ_Index
+	if area.get_collision_layer_value(4):
+		cardsTouching += 1
+		if dragging and !isColliding:
+			CardHandler.masterZ_Index += 1
+			z_index = CardHandler.masterZ_Index
+		
+		if !isColliding:
+			isColliding = true
 
 func _on_area_2d_area_exited(area: Area2D) -> void:
 	# If the card is no longer colliding with the left or right hand, or the table, it is set to over nothing
-	if area.get_collision_layer_value(3) == true or area.get_collision_layer_value(2) == true or area.get_collision_layer_value(1) == true:
+	if area.get_collision_layer_value(3) or area.get_collision_layer_value(2) or area.get_collision_layer_value(1):
 		cardFloating = floating.overNothing
+	
+	if area.get_collision_layer_value(4):
+		cardsTouching -= 1
+		if cardsTouching == 0:
+			isColliding = false
