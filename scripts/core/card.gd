@@ -12,11 +12,13 @@ var leftHandPosition: Vector2 = Vector2(-350, 200)
 var rightHandPosition: Vector2 = Vector2(375, 200)
 var previousPosition : Vector2
 var mouseDifference : Vector2
+
 var isOver : bool
 var dragging : bool = false
 var thisCardInLeftHand : bool = false
 var thisCardInRightHand : bool = false
 var isColliding: bool = false
+
 var cardsTouching: int = 0
 
 enum floating {overTable, overLeftHand, overRightHand, overNothing}
@@ -39,7 +41,7 @@ func _ready() -> void:
 	get_viewport().physics_object_picking_sort = true
 	get_viewport().physics_object_picking_first_only = true
 	previousPosition = position
-	
+
 # Tracks if the mouse is over the card
 func _on_area_2d_mouse_shape_entered(shape_idx: int) -> void:
 	isOver = true
