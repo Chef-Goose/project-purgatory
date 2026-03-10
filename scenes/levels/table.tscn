@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://2xr8etpa0yjs"]
 
-[ext_resource type="Texture2D" uid="uid://b5xe1cejnw1n0" path="res://assets/sprites/Table and Hands.png" id="1_sr0d8"]
+[ext_resource type="Texture2D" uid="uid://b5xe1cejnw1n0" path="res://assets/testing/Table and Hands.png" id="1_sr0d8"]
 [ext_resource type="PackedScene" path="res://scenes/levels/card.tscn" id="2_3yje6"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wk575"]

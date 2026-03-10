@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b5xe1cejnw1n0"
-path="res://.godot/imported/Table and Hands.png-78449975d198e256051404ef3daf18f6.ctex"
+path="res://.godot/imported/Table and Hands.png-9f2e267046be7dc22e8778cd22c93fe7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/Table and Hands.png"
-dest_files=["res://.godot/imported/Table and Hands.png-78449975d198e256051404ef3daf18f6.ctex"]
+source_file="res://assets/testing/Table and Hands.png"
+dest_files=["res://.godot/imported/Table and Hands.png-9f2e267046be7dc22e8778cd22c93fe7.ctex"]
 
 [params]
 

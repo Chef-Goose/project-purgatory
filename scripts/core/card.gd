@@ -1,9 +1,9 @@
 extends Node2D
 
 # For testing -----------------------------------------------------------------
-var paperA = preload("res://assets/sprites/Paper A.png")
-var paperB = preload("res://assets/sprites/Paper B.png")
-var paperC = preload("res://assets/sprites/Paper C.png")
+var paperA = preload("res://assets/testing/Paper A.png")
+var paperB = preload("res://assets/testing/Paper B.png")
+var paperC = preload("res://assets/testing/Paper C.png")
 @export var paperType := Sprite2D
 # End -------------------------------------------------------------------------
 
