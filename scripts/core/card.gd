@@ -55,8 +55,6 @@ func _ready() -> void:
 	# Snapshot hand positions once at startup.
 	leftHandPosition = leftHand.global_position
 	rightHandPosition = rightHand.global_position
-	print("Card.gd: Left hand position set to ", leftHandPosition)
-	print("Card.gd: Right hand position set to ", rightHandPosition)
 
 # Tracks if the mouse is over the card
 func _on_area_2d_mouse_shape_entered(shape_idx: int) -> void:
@@ -80,6 +78,7 @@ func drag_handler():
 		dragging = true
 	elif dragging and Input.is_action_just_released("leftClick"):
 		dragging = false
+		_refresh_floating_state_from_overlaps()
 
 # Handles what position the card is in before it is placed down by the player
 func hand_handler():
@@ -115,13 +114,6 @@ func placement_handler():
 
 # Checks what layer the card has collided with and changes the state to the appropriate position
 func _on_area_2d_area_entered(area: Area2D) -> void:
-	if area.get_collision_layer_value(3) and CardHandler.rightHandEmpty:
-		cardFloating = floating.overRightHand
-	elif area.get_collision_layer_value(2) and CardHandler.leftHandEmpty:
-		cardFloating = floating.overLeftHand
-	elif area.get_collision_layer_value(1):
-		cardFloating = floating.overTable
-	
 	# Changes the z_index of the most recently set card to the top if it collides with another card
 	if area.get_collision_layer_value(4):
 		cardsTouching += 1
@@ -133,15 +125,28 @@ func _on_area_2d_area_entered(area: Area2D) -> void:
 			isColliding = true
 
 func _on_area_2d_area_exited(area: Area2D) -> void:
-	# If the card is no longer colliding with the left or right hand, or the table, it is set to over nothing
-	if area.get_collision_layer_value(3) and cardFloating == floating.overRightHand:
-		cardFloating = floating.overNothing
-	elif area.get_collision_layer_value(2) and cardFloating == floating.overLeftHand:
-		cardFloating = floating.overNothing
-	elif area.get_collision_layer_value(1) and cardFloating == floating.overTable:
-		cardFloating = floating.overNothing
-	
 	if area.get_collision_layer_value(4):
 		cardsTouching -= 1
 		if cardsTouching == 0:
 			isColliding = false
+
+
+func _refresh_floating_state_from_overlaps() -> void:
+	var overlapping_areas: Array[Area2D] = $Area2D.get_overlapping_areas()
+	cardFloating = floating.overNothing
+
+	# Priority is explicit so overlap ordering cannot cause random outcomes.
+	for area in overlapping_areas:
+		if area.get_collision_layer_value(3) and (CardHandler.rightHandEmpty or thisCardInRightHand):
+			cardFloating = floating.overRightHand
+			return
+
+	for area in overlapping_areas:
+		if area.get_collision_layer_value(2) and (CardHandler.leftHandEmpty or thisCardInLeftHand):
+			cardFloating = floating.overLeftHand
+			return
+
+	for area in overlapping_areas:
+		if area.get_collision_layer_value(1):
+			cardFloating = floating.overTable
+			return

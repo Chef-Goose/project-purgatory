@@ -3,16 +3,13 @@ extends Camera2D
 class_name TableCameraController
 
 @export_group("Base")
-@export var anchor: Node2D
 @export var base_follow_speed: float = 6.0
 @export var base_zoom: Vector2 = Vector2.ONE
-@export var preserve_initial_anchor_offset: bool = true
 
 @export_group("Snap")
 @export var snap_default_speed: float = 22.0
 
-var _anchor_position: Vector2
-var _anchor_offset: Vector2 = Vector2.ZERO
+var _base_position: Vector2
 var _hover_entries: Dictionary = {}
 var _active_hover_target: Vector2 = Vector2.ZERO
 var _active_hover_speed: float = 10.0
@@ -24,24 +21,13 @@ var _snap_speed: float = 22.0
 
 
 func _ready() -> void:
-	if anchor == null and get_parent() is Node2D:
-		anchor = get_parent() as Node2D
-
-	if anchor != null:
-		_anchor_position = anchor.global_position
-		if preserve_initial_anchor_offset:
-			_anchor_offset = global_position - _anchor_position
-	else:
-		_anchor_position = global_position
+	_base_position = global_position
 
 	zoom = base_zoom
 
 
 func _process(delta: float) -> void:
-	if anchor != null:
-		_anchor_position = anchor.global_position
-
-	var base_target_position := _anchor_position + _anchor_offset
+	var base_target_position := _base_position
 
 	if _snap_active:
 		global_position = global_position.lerp(_snap_target, _smoothing_weight(_snap_speed, delta))
@@ -94,6 +80,16 @@ func clear_snap() -> void:
 	_snap_active = false
 
 
+func is_snap_active() -> bool:
+	return _snap_active
+
+
+func clear_hover_zones() -> void:
+	_hover_entries.clear()
+	_active_hover_target = _base_position
+	_active_hover_speed = base_follow_speed
+
+
 func _refresh_active_hover_zone() -> void:
 	var top_entry: Dictionary = {}
 	var has_top := false
@@ -110,7 +106,7 @@ func _refresh_active_hover_zone() -> void:
 			has_top = true
 
 	if has_top:
-		_active_hover_target = top_entry.get("target", _anchor_position + _anchor_offset)
+		_active_hover_target = top_entry.get("target", _base_position)
 		_active_hover_speed = float(top_entry.get("speed", 10.0))
 
 

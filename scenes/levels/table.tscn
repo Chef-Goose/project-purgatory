@@ -3,20 +3,22 @@
 [ext_resource type="Texture2D" uid="uid://bvbjgm60p54q8" path="res://assets/art/Environments/Foregrounds/Desk/rdPNG/Desk_RD1.png" id="1_3yje6"]
 [ext_resource type="PackedScene" path="res://scenes/levels/card.tscn" id="2_3yje6"]
 [ext_resource type="Texture2D" uid="uid://ollj88ru2e5i" path="res://assets/testing/ovenmitt.png" id="2_7thqd"]
+[ext_resource type="PackedScene" uid="uid://fl6pbuqy3msu" path="res://scenes/ui/music.tscn" id="2_dj1d4"]
 [ext_resource type="Script" uid="uid://btugaslu0kd8w" path="res://scripts/core/table_camera_controller.gd" id="4_e4jfb"]
+[ext_resource type="PackedScene" path="res://scenes/ui/camera_return_button.tscn" id="5_634sb"]
 [ext_resource type="Script" uid="uid://cmpll84e3yxne" path="res://scripts/core/table_camera_click_zone.gd" id="5_l70u8"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bndc0"]
-size = Vector2(167, 246)
+size = Vector2(112.5, 194)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sr0d8"]
-size = Vector2(165.5, 244)
+size = Vector2(110.25, 179.26727)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7n5db"]
-size = Vector2(1248.5, 985.25)
+size = Vector2(1492, 928)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_u3e6o"]
-size = Vector2(797.125, 836.5)
+size = Vector2(1432.125, 836.5)
 
 [node name="table" type="Node2D" unique_id=33346175]
 position = Vector2(588, 351)
@@ -25,35 +27,44 @@ position = Vector2(588, 351)
 position = Vector2(198, -348)
 texture = ExtResource("1_3yje6")
 
+[node name="Music" parent="." unique_id=1803824792 instance=ExtResource("2_dj1d4")]
+
 [node name="Camera2D" type="Camera2D" parent="." unique_id=850079702]
 position = Vector2(356, -265)
 script = ExtResource("4_e4jfb")
+base_follow_speed = 10.0
+
+[node name="CameraReturnButton" parent="." unique_id=631763435 instance=ExtResource("5_634sb")]
+visible = false
+camera_path = NodePath("../Camera2D")
 
 [node name="leftHandArea" type="Area2D" parent="." unique_id=194190911]
+position = Vector2(709, 336)
 collision_layer = 2
 collision_mask = 8
 
 [node name="Ovenmitt" type="Sprite2D" parent="leftHandArea" unique_id=1959436407]
-position = Vector2(119.00006, 318)
+position = Vector2(-2.2499695, -9.267242)
 scale = Vector2(0.50300306, 0.503003)
 texture = ExtResource("2_7thqd")
 flip_h = true
 
 [node name="leftHandShape" type="CollisionShape2D" parent="leftHandArea" unique_id=1958833634]
-position = Vector2(118.5, 318)
+position = Vector2(-3, 5)
 shape = SubResource("RectangleShape2D_bndc0")
 
 [node name="rightHandArea" type="Area2D" parent="." unique_id=1333376257]
+position = Vector2(1070, 326)
 collision_layer = 4
 collision_mask = 8
 
 [node name="Ovenmitt2" type="Sprite2D" parent="rightHandArea" unique_id=1751777659]
-position = Vector2(579, 325)
+position = Vector2(2.75, -5.2672424)
 scale = Vector2(0.50300306, 0.503003)
 texture = ExtResource("2_7thqd")
 
 [node name="rightHandShape" type="CollisionShape2D" parent="rightHandArea" unique_id=2029259229]
-position = Vector2(579.25, 325)
+position = Vector2(10, 11)
 shape = SubResource("RectangleShape2D_sr0d8")
 
 [node name="tableArea" type="Area2D" parent="." unique_id=446073921]
@@ -66,31 +77,56 @@ polygon = PackedVector2Array(-878.86523, -549.8318, -1409.4097, -449.8624, -1415
 
 [node name="CameraZones" type="Node2D" parent="." unique_id=1156483344]
 
-[node name="LeftLookZone" type="Area2D" parent="CameraZones" unique_id=1774525535 node_paths=PackedStringArray("target_node")]
-position = Vector2(-380, -300)
+[node name="UnderDeskLook" type="Area2D" parent="CameraZones" unique_id=1774525535 node_paths=PackedStringArray("target_node", "click_target_node")]
+position = Vector2(-972, 368)
 script = ExtResource("5_l70u8")
 camera_path = NodePath("../../Camera2D")
-target_node = NodePath("Target")
+target_node = NodePath("TargetLookPreview")
+click_target_node = NodePath("TargetLookClick")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraZones/LeftLookZone" unique_id=584892559]
-position = Vector2(-591.75, 705.375)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraZones/UnderDeskLook" unique_id=584892559]
+position = Vector2(-43, 42)
 shape = SubResource("RectangleShape2D_7n5db")
 
-[node name="Target" type="Marker2D" parent="CameraZones/LeftLookZone" unique_id=1069259606]
-position = Vector2(-73, 231)
+[node name="TargetLookPreview" type="Marker2D" parent="CameraZones/UnderDeskLook" unique_id=1069259606]
+position = Vector2(618, -393)
 
-[node name="RightLookZone" type="Area2D" parent="CameraZones" unique_id=1211353793 node_paths=PackedStringArray("target_node")]
-position = Vector2(926, -304)
+[node name="TargetLookClick" type="Marker2D" parent="CameraZones/UnderDeskLook" unique_id=564017789]
+position = Vector2(291, -220)
+
+[node name="CharacterLook" type="Area2D" parent="CameraZones" unique_id=1211353793 node_paths=PackedStringArray("target_node", "click_target_node")]
+position = Vector2(-430, -850)
 script = ExtResource("5_l70u8")
 camera_path = NodePath("../../Camera2D")
-target_node = NodePath("Target")
+target_node = NodePath("TargetLookPreview")
+click_target_node = NodePath("TargetLookClick")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraZones/RightLookZone" unique_id=1110368470]
-position = Vector2(-1105.4375, -587.75)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraZones/CharacterLook" unique_id=1110368470]
+position = Vector2(-73, -41)
 shape = SubResource("RectangleShape2D_u3e6o")
 
-[node name="Target" type="Marker2D" parent="CameraZones/RightLookZone" unique_id=1314278776]
-position = Vector2(-960, -254)
+[node name="TargetLookPreview" type="Marker2D" parent="CameraZones/CharacterLook" unique_id=1314278776]
+position = Vector2(515, 358)
+
+[node name="TargetLookClick" type="Marker2D" parent="CameraZones/CharacterLook" unique_id=927696895]
+position = Vector2(245, 233)
+
+[node name="HandsLook" type="Area2D" parent="CameraZones" unique_id=1883688389 node_paths=PackedStringArray("target_node", "click_target_node")]
+position = Vector2(1169, 422)
+script = ExtResource("5_l70u8")
+camera_path = NodePath("../../Camera2D")
+target_node = NodePath("TargetLookPreview")
+click_target_node = NodePath("TargetLookClick")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraZones/HandsLook" unique_id=2095215756]
+position = Vector2(-488, 143)
+shape = SubResource("RectangleShape2D_u3e6o")
+
+[node name="TargetLookPreview" type="Marker2D" parent="CameraZones/HandsLook" unique_id=965242932]
+position = Vector2(-623, -424)
+
+[node name="TargetLookClick" type="Marker2D" parent="CameraZones/HandsLook" unique_id=1895829327]
+position = Vector2(-360, -282)
 
 [node name="cardA" parent="." unique_id=396578719 node_paths=PackedStringArray("leftHand", "rightHand") instance=ExtResource("2_3yje6")]
 position = Vector2(-178, -136)
@@ -98,7 +134,7 @@ leftHand = NodePath("../leftHandArea/Ovenmitt")
 rightHand = NodePath("../rightHandArea/Ovenmitt2")
 
 [node name="cardB" parent="." unique_id=1909657811 node_paths=PackedStringArray("leftHand", "rightHand") instance=ExtResource("2_3yje6")]
-position = Vector2(453, -57)
+position = Vector2(207, -73)
 leftHand = NodePath("../leftHandArea/Ovenmitt")
 rightHand = NodePath("../rightHandArea/Ovenmitt2")
 

@@ -20,6 +20,8 @@ config/icon="res://assets/sprites/icon.svg"
 DialogueManager="*uid://c3rodes2l3gxb"
 Conductor="*uid://c5rvmkaorxynb"
 CardHandler="*uid://fcogjrm0vwlp"
+MusicController="*res://scripts/audio/music_controller.gd"
+DialogueMusicBridge="*res://scenes/audio/dialogue_music_bridge.tscn"
 
 [dialogue_manager]
 
