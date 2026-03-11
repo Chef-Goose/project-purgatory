@@ -3,12 +3,20 @@
 [ext_resource type="Texture2D" uid="uid://bvbjgm60p54q8" path="res://assets/art/Environments/Foregrounds/Desk/rdPNG/Desk_RD1.png" id="1_3yje6"]
 [ext_resource type="PackedScene" path="res://scenes/levels/card.tscn" id="2_3yje6"]
 [ext_resource type="Texture2D" uid="uid://ollj88ru2e5i" path="res://assets/testing/ovenmitt.png" id="2_7thqd"]
+[ext_resource type="Script" uid="uid://btugaslu0kd8w" path="res://scripts/core/table_camera_controller.gd" id="4_e4jfb"]
+[ext_resource type="Script" uid="uid://cmpll84e3yxne" path="res://scripts/core/table_camera_click_zone.gd" id="5_l70u8"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bndc0"]
-size = Vector2(61.5, 90.5)
+size = Vector2(167, 246)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sr0d8"]
-size = Vector2(74.25, 103)
+size = Vector2(165.5, 244)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7n5db"]
+size = Vector2(1248.5, 985.25)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u3e6o"]
+size = Vector2(797.125, 836.5)
 
 [node name="table" type="Node2D" unique_id=33346175]
 position = Vector2(588, 351)
@@ -18,7 +26,8 @@ position = Vector2(198, -348)
 texture = ExtResource("1_3yje6")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=850079702]
-position = Vector2(290, -4)
+position = Vector2(356, -265)
+script = ExtResource("4_e4jfb")
 
 [node name="leftHandArea" type="Area2D" parent="." unique_id=194190911]
 collision_layer = 2
@@ -31,7 +40,7 @@ texture = ExtResource("2_7thqd")
 flip_h = true
 
 [node name="leftHandShape" type="CollisionShape2D" parent="leftHandArea" unique_id=1958833634]
-position = Vector2(101, 342)
+position = Vector2(118.5, 318)
 shape = SubResource("RectangleShape2D_bndc0")
 
 [node name="rightHandArea" type="Area2D" parent="." unique_id=1333376257]
@@ -44,7 +53,7 @@ scale = Vector2(0.50300306, 0.503003)
 texture = ExtResource("2_7thqd")
 
 [node name="rightHandShape" type="CollisionShape2D" parent="rightHandArea" unique_id=2029259229]
-position = Vector2(601.875, 339.5)
+position = Vector2(579.25, 325)
 shape = SubResource("RectangleShape2D_sr0d8")
 
 [node name="tableArea" type="Area2D" parent="." unique_id=446073921]
@@ -54,6 +63,34 @@ collision_mask = 8
 position = Vector2(114.000015, -107.00003)
 scale = Vector2(0.6201178, 0.5001529)
 polygon = PackedVector2Array(-878.86523, -549.8318, -1409.4097, -449.8624, -1415.86, -269.91742, -121.19006, 600.20605, 1701.5068, 608.0969, 1700.9703, 257.24332)
+
+[node name="CameraZones" type="Node2D" parent="." unique_id=1156483344]
+
+[node name="LeftLookZone" type="Area2D" parent="CameraZones" unique_id=1774525535 node_paths=PackedStringArray("target_node")]
+position = Vector2(-380, -300)
+script = ExtResource("5_l70u8")
+camera_path = NodePath("../../Camera2D")
+target_node = NodePath("Target")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraZones/LeftLookZone" unique_id=584892559]
+position = Vector2(-591.75, 705.375)
+shape = SubResource("RectangleShape2D_7n5db")
+
+[node name="Target" type="Marker2D" parent="CameraZones/LeftLookZone" unique_id=1069259606]
+position = Vector2(-73, 231)
+
+[node name="RightLookZone" type="Area2D" parent="CameraZones" unique_id=1211353793 node_paths=PackedStringArray("target_node")]
+position = Vector2(926, -304)
+script = ExtResource("5_l70u8")
+camera_path = NodePath("../../Camera2D")
+target_node = NodePath("Target")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraZones/RightLookZone" unique_id=1110368470]
+position = Vector2(-1105.4375, -587.75)
+shape = SubResource("RectangleShape2D_u3e6o")
+
+[node name="Target" type="Marker2D" parent="CameraZones/RightLookZone" unique_id=1314278776]
+position = Vector2(-960, -254)
 
 [node name="cardA" parent="." unique_id=396578719 node_paths=PackedStringArray("leftHand", "rightHand") instance=ExtResource("2_3yje6")]
 position = Vector2(-178, -136)
