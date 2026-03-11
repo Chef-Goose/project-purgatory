@@ -7,9 +7,13 @@ var paperC = preload("res://assets/testing/Paper C.png")
 @export var paperType := Sprite2D
 # End -------------------------------------------------------------------------
 
+# Get hands for their positions
+@export var leftHand : Node2D
+@export var rightHand : Node2D
+
 var mousePosition : Vector2 = Vector2.ZERO
-var leftHandPosition: Vector2 = Vector2(-350, 200)
-var rightHandPosition: Vector2 = Vector2(375, 200)
+var leftHandPosition: Vector2 = Vector2.ZERO
+var rightHandPosition: Vector2 = Vector2.ZERO
 var previousPosition : Vector2
 var mouseDifference : Vector2
 
@@ -40,7 +44,19 @@ func _ready() -> void:
 	# Enables a setting that forces the only the top card to be selected when cards are overlaping
 	get_viewport().physics_object_picking_sort = true
 	get_viewport().physics_object_picking_first_only = true
-	previousPosition = position
+	previousPosition = global_position
+
+	if leftHand == null or rightHand == null:
+		push_error("Card.gd: leftHand/rightHand is not assigned in the Inspector.")
+		leftHandPosition = global_position
+		rightHandPosition = global_position
+		return
+
+	# Snapshot hand positions once at startup.
+	leftHandPosition = leftHand.global_position
+	rightHandPosition = rightHand.global_position
+	print("Card.gd: Left hand position set to ", leftHandPosition)
+	print("Card.gd: Right hand position set to ", rightHandPosition)
 
 # Tracks if the mouse is over the card
 func _on_area_2d_mouse_shape_entered(shape_idx: int) -> void:
@@ -77,17 +93,17 @@ func hand_handler():
 # Handles where the card will be placed when let go of by the player
 func placement_handler():
 	if !dragging and cardStates == states.inRightHand:
-		position = rightHandPosition
+		global_position = rightHandPosition
 		CardHandler.rightHandEmpty = false
 		thisCardInRightHand = true
 	elif !dragging and cardStates == states.inLeftHand:
-		position = leftHandPosition
+		global_position = leftHandPosition
 		CardHandler.leftHandEmpty = false
 		thisCardInLeftHand = true
 	elif !dragging and cardFloating == floating.overTable:
-		previousPosition = position
+		previousPosition = global_position
 	elif !dragging and cardFloating == floating.overNothing:
-		position = previousPosition
+		global_position = previousPosition
 	
 	if cardStates != states.inRightHand and !CardHandler.rightHandEmpty and thisCardInRightHand:
 		CardHandler.rightHandEmpty = true
@@ -118,7 +134,11 @@ func _on_area_2d_area_entered(area: Area2D) -> void:
 
 func _on_area_2d_area_exited(area: Area2D) -> void:
 	# If the card is no longer colliding with the left or right hand, or the table, it is set to over nothing
-	if area.get_collision_layer_value(3) or area.get_collision_layer_value(2) or area.get_collision_layer_value(1):
+	if area.get_collision_layer_value(3) and cardFloating == floating.overRightHand:
+		cardFloating = floating.overNothing
+	elif area.get_collision_layer_value(2) and cardFloating == floating.overLeftHand:
+		cardFloating = floating.overNothing
+	elif area.get_collision_layer_value(1) and cardFloating == floating.overTable:
 		cardFloating = floating.overNothing
 	
 	if area.get_collision_layer_value(4):

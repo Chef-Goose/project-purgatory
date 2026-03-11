@@ -25,6 +25,11 @@ CardHandler="*uid://fcogjrm0vwlp"
 
 runtime/balloon_path="uid://bxfd2cbdoulmn"
 
+[display]
+
+window/size/viewport_width=1600
+window/size/viewport_height=900
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/GodotSavesAddon/plugin.cfg", "res://addons/conductor/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg")
