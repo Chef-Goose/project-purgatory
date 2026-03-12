@@ -1,6 +1,6 @@
 extends Node
 
-@export var cue_tracks: Dictionary = {}
+@export var cue_tracks: Dictionary[String, AudioStream] = {}
 @export var default_fade_time: float = 0.6
 @export var stop_fade_time: float = 0.4
 @export var resume_cue_on_dialogue_end: String = ""
