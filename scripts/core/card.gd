@@ -1,5 +1,8 @@
 extends Node2D
 
+const SHADOW_TABLE_CLIP_SHADER_PATH = "res://shaders/shadow_table_clip.gdshader"
+const SHADOW_CLIP_MAX_POINTS = 16
+
 # For testing -----------------------------------------------------------------
 var paperA = preload("res://assets/testing/Paper A.png")
 var paperB = preload("res://assets/testing/Paper B.png")
@@ -11,10 +14,10 @@ var paperC = preload("res://assets/testing/Paper C.png")
 @export var leftHand : Node2D
 @export var rightHand : Node2D
 
-# Perspective scaling based on isometric 45-degree view
+# Perspective scaling based on the tables 45-degree view
 @export var perspective_far_point: Vector2 = Vector2(157.0, -32.0)  # Upper-left / furthest point on the table
 @export var perspective_near_point: Vector2 = Vector2(1746.0, 543.0)  # Lower-right / closest point on the table
-@export var perspective_min_scale: float = 0.6  # Minimum scale (furthest away)
+@export var perspective_min_scale: float = 0.5  # Minimum scale (furthest away)
 @export var perspective_max_scale: float = 1.3  # Maximum scale (closest)
 @export var drag_hover_offset: Vector2 = Vector2(0.0, -30.0)
 @export var drag_hover_speed: float = 30.0
@@ -42,6 +45,8 @@ var hasTableDropTarget: bool = false
 
 var cardsTouching: int = 0
 var placementTween: Tween
+var shadowClipMaterial: ShaderMaterial
+var shadowClipShader: Shader
 
 enum floating {overTable, overLeftHand, overRightHand, overNothing}
 var cardFloating : floating = floating.overTable
@@ -75,9 +80,11 @@ func _ready() -> void:
 	# Snapshot hand positions once at startup.
 	leftHandPosition = leftHand.global_position
 	rightHandPosition = rightHand.global_position
+	_setup_shadow_clip_material()
 	_sync_shadow_texture()
 	update_perspective_scale()
 	update_drag_presentation(1.0)
+	call_deferred("_deferred_refresh_table_clip")
 
 # Updates the card's scale based on its position in the isometric perspective
 func update_perspective_scale() -> void:
@@ -162,6 +169,50 @@ func _get_table_polygon_world(table_area: Area2D) -> PackedVector2Array:
 			return world_polygon
 
 	return PackedVector2Array()
+
+func _setup_shadow_clip_material() -> void:
+	if shadowSprite == null:
+		return
+
+	if shadowClipShader == null:
+		shadowClipShader = load(SHADOW_TABLE_CLIP_SHADER_PATH)
+		if shadowClipShader == null:
+			push_error("Card.gd: Failed to load shadow clip shader at %s" % SHADOW_TABLE_CLIP_SHADER_PATH)
+			return
+
+	if shadowSprite.material is ShaderMaterial and (shadowSprite.material as ShaderMaterial).shader == shadowClipShader:
+		shadowClipMaterial = shadowSprite.material as ShaderMaterial
+	else:
+		shadowClipMaterial = ShaderMaterial.new()
+		shadowClipMaterial.shader = shadowClipShader
+		shadowSprite.material = shadowClipMaterial
+
+	shadowClipMaterial.set_shader_parameter("table_point_count", 0)
+
+func _deferred_refresh_table_clip() -> void:
+	if lastTableArea == null:
+		for area in $Area2D.get_overlapping_areas():
+			if area.get_collision_layer_value(1):
+				lastTableArea = area
+				break
+
+	_update_shadow_clip_polygon()
+
+func _update_shadow_clip_polygon() -> void:
+	if shadowClipMaterial == null:
+		return
+
+	var table_polygon = PackedVector2Array()
+	if lastTableArea != null:
+		table_polygon = _get_table_polygon_world(lastTableArea)
+
+	var clipped_polygon := PackedVector2Array()
+	var clipped_count = mini(table_polygon.size(), SHADOW_CLIP_MAX_POINTS)
+	for i in range(clipped_count):
+		clipped_polygon.append(table_polygon[i])
+
+	shadowClipMaterial.set_shader_parameter("table_point_count", clipped_count)
+	shadowClipMaterial.set_shader_parameter("table_points", clipped_polygon)
 
 func animate_to_position(target_position: Vector2) -> void:
 	if global_position.is_equal_approx(target_position):
@@ -274,6 +325,7 @@ func placement_handler():
 func _on_area_2d_area_entered(area: Area2D) -> void:
 	if area.get_collision_layer_value(1):
 		lastTableArea = area
+		_update_shadow_clip_polygon()
 
 	# Changes the z_index of the most recently set card to the top if it collides with another card
 	if area.get_collision_layer_value(4):

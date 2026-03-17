@@ -13,8 +13,8 @@ paperType = NodePath("card")
 [node name="Shadow" type="Sprite2D" parent="." unique_id=79335273]
 modulate = Color(0, 0, 0, 0)
 z_index = -1
-position = Vector2(-4.529953e-06, 42.999996)
-scale = Vector2(0.84615374, 0.3933054)
+position = Vector2(8.381328e-06, 3.9999924)
+scale = Vector2(0.8461539, 0.7196652)
 texture = ExtResource("1_tlfws")
 
 [node name="card" type="Sprite2D" parent="." unique_id=505279869]

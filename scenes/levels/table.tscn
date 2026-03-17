@@ -73,7 +73,7 @@ collision_mask = 8
 [node name="tableShape" type="CollisionPolygon2D" parent="tableArea" unique_id=1606896471]
 position = Vector2(114.000015, -107.00003)
 scale = Vector2(0.6201178, 0.5001529)
-polygon = PackedVector2Array(-878.86523, -549.8318, -1409.4097, -449.8624, -1415.86, -269.91742, -121.19006, 600.20605, 1691.6143, 599.8167, 1678.7134, 151.95361)
+polygon = PackedVector2Array(-878.86523, -549.8318, -1409.4097, -449.8624, -1415.86, -269.91742, -121.19006, 600.20605, 1685.1638, 603.8155, 1678.7134, 151.95361)
 
 [node name="CameraZones" type="Node2D" parent="." unique_id=1156483344]
 
