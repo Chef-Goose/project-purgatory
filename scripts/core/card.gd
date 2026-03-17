@@ -284,11 +284,14 @@ func drag_handler():
 
 # Handles what position the card is in before it is placed down by the player
 func hand_handler():
-	if !dragging and cardFloating == floating.overRightHand:
+	if dragging:
+		return
+
+	if cardFloating == floating.overRightHand:
 		cardStates = states.inRightHand
-	elif !dragging and cardFloating == floating.overLeftHand:
+	elif cardFloating == floating.overLeftHand:
 		cardStates = states.inLeftHand
-	elif !dragging and (cardFloating == floating.overTable or cardFloating == floating.overNothing):
+	elif cardFloating == floating.overTable or cardFloating == floating.overNothing:
 		cardStates = states.onTable
 
 # Handles where the card will be placed when let go of by the player
@@ -296,21 +299,21 @@ func placement_handler():
 	if dragging:
 		return
 
-	if !dragging and cardStates == states.inRightHand:
+	if cardStates == states.inRightHand:
 		animate_to_position(rightHandPosition)
 		CardHandler.rightHandEmpty = false
 		thisCardInRightHand = true
-	elif !dragging and cardStates == states.inLeftHand:
+	elif cardStates == states.inLeftHand:
 		animate_to_position(leftHandPosition)
 		CardHandler.leftHandEmpty = false
 		thisCardInLeftHand = true
-	elif !dragging and cardStates == states.onTable and hasTableDropTarget:
+	elif cardStates == states.onTable and hasTableDropTarget:
 		animate_to_position(tableDropPosition)
 		previousPosition = tableDropPosition
-	elif !dragging and cardFloating == floating.overTable:
+	elif cardFloating == floating.overTable:
 		_stop_placement_tween()
 		previousPosition = global_position
-	elif !dragging and cardFloating == floating.overNothing:
+	elif cardFloating == floating.overNothing:
 		animate_to_position(previousPosition)
 	
 	if cardStates != states.inRightHand and !CardHandler.rightHandEmpty and thisCardInRightHand:

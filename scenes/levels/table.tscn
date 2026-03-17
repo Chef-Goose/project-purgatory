@@ -4,7 +4,6 @@
 [ext_resource type="PackedScene" uid="uid://cnvo26buk0q6t" path="res://scenes/levels/card.tscn" id="2_3yje6"]
 [ext_resource type="Texture2D" uid="uid://ollj88ru2e5i" path="res://assets/testing/ovenmitt.png" id="2_7thqd"]
 [ext_resource type="PackedScene" uid="uid://fl6pbuqy3msu" path="res://scenes/ui/music.tscn" id="2_dj1d4"]
-[ext_resource type="AudioStream" uid="uid://cdkqtrmyvy36j" path="res://assets/audio/Paper & Office Fan.wav" id="3_dwiun"]
 [ext_resource type="Script" uid="uid://btugaslu0kd8w" path="res://scripts/core/table_camera_controller.gd" id="4_e4jfb"]
 [ext_resource type="PackedScene" path="res://scenes/ui/camera_return_button.tscn" id="5_634sb"]
 [ext_resource type="Script" uid="uid://cmpll84e3yxne" path="res://scripts/core/table_camera_click_zone.gd" id="5_l70u8"]
@@ -29,7 +28,6 @@ position = Vector2(198, -348)
 texture = ExtResource("1_3yje6")
 
 [node name="Music" parent="." unique_id=1803824792 instance=ExtResource("2_dj1d4")]
-music_track = ExtResource("3_dwiun")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=850079702]
 position = Vector2(356, -265)
