@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://d03osn01hxg4p"]
+
+[ext_resource type="Script" uid="uid://bllv2lpf5tq2y" path="res://scripts/audio/dialogue_music_bridge.gd" id="1_7l2ps"]
+[ext_resource type="AudioStream" uid="uid://cdkqtrmyvy36j" path="res://assets/audio/Paper & Office Fan.wav" id="2_htu0h"]
+
+[node name="DialogueMusicBridge" type="Node" unique_id=308502559]
+script = ExtResource("1_7l2ps")
+cue_tracks = Dictionary[String, AudioStream]({
+"paper": ExtResource("2_htu0h")
+})

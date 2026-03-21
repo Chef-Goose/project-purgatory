@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/camera_return_button.gd" id="1_7rmbq"]
+
+[node name="CameraReturnButton" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_7rmbq")
+
+[node name="ReturnButton" type="Button" parent="."]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 176.0
+offset_bottom = 74.0
+text = "Return"

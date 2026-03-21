@@ -1,7 +1,7 @@
-[gd_scene format=3 uid="uid://d2vfqorl1hin"]
+[gd_scene format=3 uid="uid://cnvo26buk0q6t"]
 
 [ext_resource type="Script" uid="uid://bf0t1xdil0tpv" path="res://scripts/core/card.gd" id="1_fw4gr"]
-[ext_resource type="Texture2D" uid="uid://benr7m8oq8esp" path="res://assets/sprites/Paper A.png" id="1_tlfws"]
+[ext_resource type="Texture2D" uid="uid://benr7m8oq8esp" path="res://assets/testing/Paper A.png" id="1_tlfws"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fw4gr"]
 size = Vector2(154, 238)
@@ -9,6 +9,13 @@ size = Vector2(154, 238)
 [node name="card" type="Node2D" unique_id=1909657811 node_paths=PackedStringArray("paperType")]
 script = ExtResource("1_fw4gr")
 paperType = NodePath("card")
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=79335273]
+modulate = Color(0, 0, 0, 0)
+z_index = -1
+position = Vector2(8.381328e-06, 3.9999924)
+scale = Vector2(0.8461539, 0.7196652)
+texture = ExtResource("1_tlfws")
 
 [node name="card" type="Sprite2D" parent="." unique_id=505279869]
 scale = Vector2(0.75, 0.75)
