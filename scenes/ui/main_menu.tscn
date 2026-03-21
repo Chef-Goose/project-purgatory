@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bx3x02iv2rcnw"]
 
 [ext_resource type="Script" uid="uid://cfl53uwevmu6p" path="res://scripts/menu/main_menu.gd" id="1_sl1te"]
+[ext_resource type="PackedScene" path="res://scenes/ui/menu_button.tscn" id="2_13j0t"]
 
 [node name="Main Menu" type="Node2D" unique_id=234608857]
 script = ExtResource("1_sl1te")
@@ -11,7 +12,7 @@ anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="Start" type="Button" parent="Button_Manager" unique_id=72322684]
+[node name="Start" parent="Button_Manager" instance=ExtResource("2_13j0t")]
 layout_mode = 0
 offset_left = 323.0
 offset_top = 73.0
@@ -19,7 +20,7 @@ offset_right = 832.0
 offset_bottom = 168.0
 text = "START THE GAME"
 
-[node name="Options" type="Button" parent="Button_Manager" unique_id=2084542303]
+[node name="Options" parent="Button_Manager" instance=ExtResource("2_13j0t")]
 layout_mode = 0
 offset_left = 268.0
 offset_top = 210.0
@@ -27,7 +28,7 @@ offset_right = 890.0
 offset_bottom = 452.0
 text = "OPTIONS?"
 
-[node name="Quit" type="Button" parent="Button_Manager" unique_id=1327826180]
+[node name="Quit" parent="Button_Manager" instance=ExtResource("2_13j0t")]
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 7.7500005
