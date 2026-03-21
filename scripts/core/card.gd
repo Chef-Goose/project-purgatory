@@ -32,7 +32,7 @@ var paperC = preload("res://assets/testing/Paper C.png")
 @export var snap_animation_duration: float = 0.1
 
 @export_category("Physics")
-@export var friction: float = 1800.0
+@export_range(0.0, 1.0, 0.01) var friction: float = 0.5
 @export var bounce_objects: bool = true
 @export_range(0.0, 2.0, 0.05) var bounce: float = 0.7
 @export_range(0.1, 5.0, 0.1) var weight: float = 1.0
@@ -397,24 +397,30 @@ func _physics_process(delta: float) -> void:
 	mousePosition = get_global_mouse_position()
 
 func _slide_stop_speed() -> float:
-	# Stop threshold is derived from friction so there is one less overlapping tuning variable.
-	return clamp(friction * 0.02, 8.0, 120.0)
+	# Higher friction raises the speed threshold where slide is considered settled.
+	return lerp(6.0, 260.0, friction)
+
+func _slide_friction_force() -> float:
+	# 0.0 = slippery table, 1.0 = near immediate stop.
+	return lerp(300.0, 18000.0, friction)
 
 func _release_speed_boost() -> float:
 	# Higher bounce keeps a bit more release momentum.
 	return clamp(0.3 + bounce, 0.6, 1.4)
 
 func _return_pull_strength() -> float:
-	# Heavier objects pull back a little slower; friction still sets the baseline feel.
-	return (friction * 2.0) / max(0.1, weight)
+	# Air-return pull is independent from table friction.
+	return 3000.0
 
 func _return_drag_strength() -> float:
-	# Keeps return motion stable as friction changes.
-	return clamp(friction / 500.0, 1.5, 6.0)
+	# Air-return drag baseline is independent from table friction.
+	return 3.5
 
 func _return_settle_radius() -> float:
-	# Settle radius follows stop speed so return and slide feel consistent.
-	return clamp(_slide_stop_speed() * 0.4, 8.0, 28.0)
+	return 14.0
+
+func _air_stop_speed() -> float:
+	return 30.0
 
 func _hide_drop_shadow() -> void:
 	# Let update_drag_presentation fade the shadow out smoothly instead of hiding instantly.
@@ -428,13 +434,13 @@ func _air_drag_factor() -> float:
 	return _return_drag_strength() / (bc * mass * 1800.0)
 
 func _max_return_speed() -> float:
-	var base_speed = (_return_pull_strength() * 0.6) + (_slide_stop_speed() * 8.0)
+	var base_speed = 700.0 + (_return_pull_strength() * 0.15)
 	var bc_scale = clamp(sqrt(max(0.02, ballistic_coefficient)) * 2.0, 0.45, 2.5)
 	return clamp(base_speed * bc_scale, 250.0, 3200.0)
 
 func _landing_slide_transfer() -> float:
 	# Converts return impact into table slide momentum.
-	return clamp(0.2 + (bounce * 0.3), 0.2, 0.8)
+	return clamp(0.4 + (bounce * 0.4), 0.4, 1.0)
 
 # Moves the card to the position of the mouse and handles if the card is being dragged
 func drag_handler():
@@ -502,7 +508,7 @@ func _apply_out_of_bounds_drop(delta: float) -> void:
 	var to_target = outOfBoundsDropTarget - global_position
 	var distance_to_target = to_target.length()
 
-	if distance_to_target <= _return_settle_radius() and outOfBoundsDropVelocity.length() <= _slide_stop_speed():
+	if distance_to_target <= _return_settle_radius() and outOfBoundsDropVelocity.length() <= _air_stop_speed():
 		_finish_out_of_bounds_drop()
 		return
 
@@ -570,7 +576,7 @@ func _apply_table_slide(delta: float) -> void:
 		return
 
 	var speed = tableSlideVelocity.length()
-	speed = max(0.0, speed - (friction * delta))
+	speed = max(0.0, speed - (_slide_friction_force() * delta))
 	if speed <= _slide_stop_speed():
 		tableSlideVelocity = Vector2.ZERO
 		tableDropPosition = global_position

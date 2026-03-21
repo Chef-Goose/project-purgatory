@@ -132,15 +132,17 @@ position = Vector2(-360, -282)
 position = Vector2(-158, -186)
 leftHand = NodePath("../leftHandArea/Ovenmitt")
 rightHand = NodePath("../rightHandArea/Ovenmitt2")
+friction = 1.0
 bounce = 1.0
 weight = 5.0
-ballistic_coefficient = 0.91
+ballistic_coefficient = 1.5
 
 [node name="cardB" parent="." unique_id=1909657811 node_paths=PackedStringArray("leftHand", "rightHand") instance=ExtResource("2_3yje6")]
 position = Vector2(207, -73)
 leftHand = NodePath("../leftHandArea/Ovenmitt")
 rightHand = NodePath("../rightHandArea/Ovenmitt2")
 shadow_fade_speed = 10.0
+friction = 0.0
 
 [node name="cardC" parent="." unique_id=318108419 node_paths=PackedStringArray("leftHand", "rightHand") instance=ExtResource("2_3yje6")]
 position = Vector2(33, -134)
