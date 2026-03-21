@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dpoih4vfpeary"
-path="res://.godot/imported/Paper C.png-3f602616ede3ed4a2059ab65a26cfbcb.ctex"
+uid="uid://bvbjgm60p54q8"
+path="res://.godot/imported/Desk_RD1.png-06260d6da88e044c9668da0650ec6904.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/testing/Paper C.png"
-dest_files=["res://.godot/imported/Paper C.png-3f602616ede3ed4a2059ab65a26cfbcb.ctex"]
+source_file="res://assets/art/Environments/Foregrounds/Desk/rdPNG/Desk_RD1.png"
+dest_files=["res://.godot/imported/Desk_RD1.png-06260d6da88e044c9668da0650ec6904.ctex"]
 
 [params]
 
