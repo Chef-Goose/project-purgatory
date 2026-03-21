@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dpl6454kfbd2a"]
+
+[ext_resource type="Script" uid="uid://bqo11kpjk1eog" path="res://scripts/menu/menu_button.gd" id="1_0b2v3"]
+
+[node name="MenuButton" type="Button" unique_id=564418100]
+script = ExtResource("1_0b2v3")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1660598214]
