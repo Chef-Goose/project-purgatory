@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://2xr8etpa0yjs"]
 
-[ext_resource type="Texture2D" uid="uid://bvbjgm60p54q8" path="res://assets/art/Environments/Foregrounds/Desk/rdPNG/Desk_RD1.png" id="1_3yje6"]
+[ext_resource type="Texture2D" uid="uid://bvbjgm60p54q8" path="res://assets/art/environments/Desk_RD1.png" id="1_3yje6"]
 [ext_resource type="PackedScene" uid="uid://cnvo26buk0q6t" path="res://scenes/levels/card.tscn" id="2_3yje6"]
 [ext_resource type="Texture2D" uid="uid://ollj88ru2e5i" path="res://assets/testing/ovenmitt.png" id="2_7thqd"]
 [ext_resource type="PackedScene" uid="uid://fl6pbuqy3msu" path="res://scenes/ui/music.tscn" id="2_dj1d4"]
@@ -33,6 +33,7 @@ texture = ExtResource("1_3yje6")
 position = Vector2(356, -265)
 script = ExtResource("4_e4jfb")
 base_follow_speed = 10.0
+base_zoom = Vector2(0.75, 0.75)
 
 [node name="CameraReturnButton" parent="." unique_id=631763435 instance=ExtResource("5_634sb")]
 visible = false
@@ -148,3 +149,6 @@ friction = 0.0
 position = Vector2(33, -134)
 leftHand = NodePath("../leftHandArea/Ovenmitt")
 rightHand = NodePath("../rightHandArea/Ovenmitt2")
+friction = 0.32
+weight = 2.9
+ballistic_coefficient = 0.99

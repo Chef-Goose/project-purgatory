@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://u5rw7tkaplp4"]
+
+[ext_resource type="Script" uid="uid://cmpll84e3yxne" path="res://scripts/core/table_camera_click_zone.gd" id="1_l70u8"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_default"]
+size = Vector2(423, 440)
+
+[node name="TableCameraZone" type="Area2D" unique_id=970559523 node_paths=PackedStringArray("target_node", "click_target_node")]
+script = ExtResource("1_l70u8")
+camera_path = NodePath("../../Camera2D")
+target_node = NodePath("TargetLookPreview")
+click_target_node = NodePath("TargetLookClick")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1555173749]
+position = Vector2(147.5, -156)
+shape = SubResource("RectangleShape2D_default")
+
+[node name="TargetLookPreview" type="Marker2D" parent="." unique_id=91959661]
+
+[node name="TargetLookClick" type="Marker2D" parent="." unique_id=1728864158]
