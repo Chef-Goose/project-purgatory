@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://bquggq3tgbn4x"]
+
+[ext_resource type="Script" uid="uid://bf0t1xdil0tpv" path="res://scripts/core/card.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dpoih4vfpeary" path="res://assets/testing/Paper C.png" id="2_tex"]
+[ext_resource type="Resource" path="res://assets/data/cards/card_physics_marble.tres" id="3_phys"]
+[ext_resource type="Resource" path="res://assets/data/cards/table_item_capabilities_marble.tres" id="4_cap"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_shape"]
+size = Vector2(154, 238)
+
+[node name="table_item_marble" type="Node2D" unique_id=750117192 node_paths=PackedStringArray("paperType")]
+script = ExtResource("1_script")
+paperType = NodePath("Sprite")
+physics_profile = ExtResource("3_phys")
+capabilities_profile = ExtResource("4_cap")
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=1147657364]
+modulate = Color(0, 0, 0, 0)
+z_index = -1
+position = Vector2(0, 4)
+scale = Vector2(0.6, 0.55)
+texture = ExtResource("2_tex")
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=695578653]
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_tex")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1036446911]
+collision_layer = 8
+collision_mask = 15
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1021743039]
+scale = Vector2(0.4, 0.4)
+shape = SubResource("RectangleShape2D_shape")
+
+[connection signal="area_entered" from="Area2D" to="." method="_on_area_2d_area_entered"]
+[connection signal="area_exited" from="Area2D" to="." method="_on_area_2d_area_exited"]
+[connection signal="mouse_shape_entered" from="Area2D" to="." method="_on_area_2d_mouse_shape_entered"]
+[connection signal="mouse_shape_exited" from="Area2D" to="." method="_on_area_2d_mouse_shape_exited"]

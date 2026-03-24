@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CardPhysicsProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/card_physics_profile.gd" id="1_qw2e1"]
+
+[resource]
+script = ExtResource("1_qw2e1")
+friction = 0.62
+bounce = 0.2
+weight = 0.9
+ballistic_coefficient = 0.55

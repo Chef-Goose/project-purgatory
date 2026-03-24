@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="TableItemCapabilities" format=3 uid="uid://lrcgwemj0itk"]
+
+[ext_resource type="Script" uid="uid://l3rmrj2sfkpc" path="res://scripts/core/table_item_capabilities.gd" id="1_w8w2i"]
+
+[resource]
+script = ExtResource("1_w8w2i")
