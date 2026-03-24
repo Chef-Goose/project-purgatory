@@ -2,10 +2,12 @@ extends Node2D
 
 
 func _on_start_pressed() -> void:
+	await get_tree().create_timer(0.5).timeout
 	get_tree().change_scene_to_file("res://scenes/ui/dialogue_ui.tscn")
 
 
 func _on_options_pressed() -> void:
+	await get_tree().create_timer(0.5).timeout
 	get_tree().change_scene_to_file("")
 
 
