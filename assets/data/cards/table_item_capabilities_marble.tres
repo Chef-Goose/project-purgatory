@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TableItemCapabilities" format=3 uid="uid://e0gsherlgnvq"]
+
+[ext_resource type="Script" uid="uid://l3rmrj2sfkpc" path="res://scripts/core/table_item_capabilities.gd" id="1_2avnt"]
+
+[resource]
+script = ExtResource("1_2avnt")
+can_be_placed_in_hands = false
+shadow_alpha_scale = 0.7
+shadow_depth_scale = 0.55

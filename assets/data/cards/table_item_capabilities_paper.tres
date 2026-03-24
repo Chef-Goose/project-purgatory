@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TableItemCapabilities" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/table_item_capabilities.gd" id="1_p8a32"]
+
+[resource]
+script = ExtResource("1_p8a32")
+can_drag = true
+can_be_placed_in_hands = true
+can_slide_on_table = true
+can_bounce_objects = true
+can_receive_object_bounce = true
+use_paper_test_random_texture = true
+shadow_alpha_scale = 1.0
+shadow_depth_scale = 1.0

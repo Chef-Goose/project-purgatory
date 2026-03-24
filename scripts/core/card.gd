@@ -2,6 +2,7 @@ extends Node2D
 
 const SHADOW_TABLE_CLIP_SHADER_PATH = "res://shaders/shadow_table_clip.gdshader"
 const SHADOW_CLIP_MAX_POINTS = 16
+const TABLE_ITEM_CAPABILITIES_SCRIPT = preload("res://scripts/core/table_item_capabilities.gd")
 
 # For testing -----------------------------------------------------------------
 var paperA = preload("res://assets/testing/Paper A.png")
@@ -32,12 +33,9 @@ var paperC = preload("res://assets/testing/Paper C.png")
 @export var snap_animation_duration: float = 0.1
 
 @export_category("Physics")
-@export_range(0.0, 1.0, 0.01) var friction: float = 0.5
+@export var physics_profile: CardPhysicsProfile = preload("res://assets/data/cards/card_physics_default.tres")
+@export var capabilities_profile: Resource = preload("res://assets/data/cards/table_item_capabilities_default.tres")
 @export var bounce_objects: bool = true
-@export_range(0.0, 2.0, 0.05) var bounce: float = 0.7
-@export_range(0.1, 5.0, 0.1) var weight: float = 1.0
-# Higher ballistic coefficient means less speed loss to air drag.
-@export_range(0.02, 1.5, 0.01) var ballistic_coefficient: float = 0.75
 
 var mousePosition : Vector2 = Vector2.ZERO
 var leftHandPosition: Vector2 = Vector2.ZERO
@@ -75,14 +73,20 @@ var cardStates : states = states.onTable
 @onready var shadowSprite: Sprite2D = $Shadow
 
 func _ready() -> void:
+	if physics_profile == null:
+		physics_profile = CardPhysicsProfile.new()
+	if capabilities_profile == null:
+		capabilities_profile = TABLE_ITEM_CAPABILITIES_SCRIPT.new()
+
 	# For testing -------------------------------------------------------------
-	var rand = randi_range(1,3)
-	if rand == 1:
-		paperType.texture = paperA
-	elif rand == 2:
-		paperType.texture = paperB
-	else:
-		paperType.texture = paperC
+	if _uses_paper_test_random_texture():
+		var rand = randi_range(1,3)
+		if rand == 1:
+			paperType.texture = paperA
+		elif rand == 2:
+			paperType.texture = paperB
+		else:
+			paperType.texture = paperC
 	# End ---------------------------------------------------------------------
 		
 	# Enables a setting that forces the only the top card to be selected when cards are overlaping
@@ -124,13 +128,13 @@ func update_drag_presentation(delta: float) -> void:
 	var blend = min(1.0, drag_hover_speed * delta)
 	var target_card_offset = drag_hover_offset if dragging else Vector2.ZERO
 	var can_show_drop_marker = (dragging or outOfBoundsDropActive) and hasTableDropTarget
-	var target_shadow_alpha = shadow_max_alpha if can_show_drop_marker else 0.0
+	var target_shadow_alpha = (shadow_max_alpha * _shadow_alpha_scale()) if can_show_drop_marker else 0.0
 	var target_shadow_position = Vector2.ZERO
 
 	if can_show_drop_marker:
 		var drop_local = to_local(tableDropPosition)
 		# Keep shadow horizontally aligned with the card while still using table depth for Y.
-		target_shadow_position = Vector2(paperType.position.x + shadow_offset.x, drop_local.y + shadow_offset.y)
+		target_shadow_position = Vector2(paperType.position.x + shadow_offset.x, drop_local.y + (shadow_offset.y * _shadow_depth_scale()))
 
 	paperType.position = paperType.position.lerp(target_card_offset, blend)
 	if can_show_drop_marker:
@@ -398,15 +402,15 @@ func _physics_process(delta: float) -> void:
 
 func _slide_stop_speed() -> float:
 	# Higher friction raises the speed threshold where slide is considered settled.
-	return lerp(6.0, 260.0, friction)
+	return lerp(6.0, 260.0, _get_friction())
 
 func _slide_friction_force() -> float:
 	# 0.0 = slippery table, 1.0 = near immediate stop.
-	return lerp(300.0, 18000.0, friction)
+	return lerp(300.0, 18000.0, _get_friction())
 
 func _release_speed_boost() -> float:
 	# Higher bounce keeps a bit more release momentum.
-	return clamp(0.3 + bounce, 0.6, 1.4)
+	return clamp(0.3 + _get_bounce(), 0.6, 1.4)
 
 func _return_pull_strength() -> float:
 	# Air-return pull is independent from table friction.
@@ -429,21 +433,85 @@ func _hide_drop_shadow() -> void:
 
 func _air_drag_factor() -> float:
 	# Quadratic drag approximation: acceleration is proportional to v^2 and inverse to BC * mass.
-	var bc = max(0.02, ballistic_coefficient)
-	var mass = max(0.1, weight)
+	var bc = max(0.02, _get_ballistic_coefficient())
+	var mass = max(0.1, _get_weight())
 	return _return_drag_strength() / (bc * mass * 1800.0)
 
 func _max_return_speed() -> float:
 	var base_speed = 700.0 + (_return_pull_strength() * 0.15)
-	var bc_scale = clamp(sqrt(max(0.02, ballistic_coefficient)) * 2.0, 0.45, 2.5)
+	var bc_scale = clamp(sqrt(max(0.02, _get_ballistic_coefficient())) * 2.0, 0.45, 2.5)
 	return clamp(base_speed * bc_scale, 250.0, 3200.0)
 
 func _landing_slide_transfer() -> float:
 	# Converts return impact into table slide momentum.
-	return clamp(0.4 + (bounce * 0.4), 0.4, 1.0)
+	return clamp(0.4 + (_get_bounce() * 0.4), 0.4, 1.0)
+
+func _uses_paper_test_random_texture() -> bool:
+	if capabilities_profile == null:
+		return false
+	return capabilities_profile.use_paper_test_random_texture
+
+func _can_drag_item() -> bool:
+	if capabilities_profile == null:
+		return true
+	return capabilities_profile.can_drag
+
+func _can_be_placed_in_hands() -> bool:
+	if capabilities_profile == null:
+		return true
+	return capabilities_profile.can_be_placed_in_hands
+
+func _can_slide_on_table() -> bool:
+	if capabilities_profile == null:
+		return true
+	return capabilities_profile.can_slide_on_table
+
+func _can_bounce_objects() -> bool:
+	if capabilities_profile == null:
+		return true
+	return capabilities_profile.can_bounce_objects
+
+func _can_receive_object_bounce() -> bool:
+	if capabilities_profile == null:
+		return true
+	return capabilities_profile.can_receive_object_bounce
+
+func _shadow_alpha_scale() -> float:
+	if capabilities_profile == null:
+		return 1.0
+	return capabilities_profile.shadow_alpha_scale
+
+func _shadow_depth_scale() -> float:
+	if capabilities_profile == null:
+		return 1.0
+	return capabilities_profile.shadow_depth_scale
+
+func _get_friction() -> float:
+	if physics_profile == null:
+		return 0.5
+	return physics_profile.friction
+
+func _get_bounce() -> float:
+	if physics_profile == null:
+		return 0.7
+	return physics_profile.bounce
+
+func _get_weight() -> float:
+	if physics_profile == null:
+		return 1.0
+	return physics_profile.weight
+
+func _get_ballistic_coefficient() -> float:
+	if physics_profile == null:
+		return 0.75
+	return physics_profile.ballistic_coefficient
 
 # Moves the card to the position of the mouse and handles if the card is being dragged
 func drag_handler():
+	if !_can_drag_item():
+		dragging = false
+		return
+
 	if dragging and mouseDifference != Vector2.ZERO:
 		global_position -= mouseDifference
 		_refresh_floating_state_from_overlaps()
@@ -456,8 +524,7 @@ func drag_handler():
 		dragging = true
 		tableDropPosition = previousPosition
 		hasTableDropTarget = true
-		CardHandler.masterZ_Index += 1
-		z_index = CardHandler.masterZ_Index
+		z_index = CardHandler.next_card_z_index()
 		_refresh_floating_state_from_overlaps()
 	elif dragging and Input.is_action_just_released("leftClick"):
 		dragging = false
@@ -465,6 +532,10 @@ func drag_handler():
 		_refresh_floating_state_from_overlaps()
 
 func _start_table_slide_from_release() -> void:
+	if !_can_slide_on_table():
+		tableSlideVelocity = Vector2.ZERO
+		return
+
 	if cardFloating == floating.overNothing:
 		_start_out_of_bounds_drop()
 		return
@@ -549,10 +620,17 @@ func _finish_out_of_bounds_drop() -> void:
 	hasTableDropTarget = true
 	previousPosition = outOfBoundsDropTarget
 	_hide_drop_shadow()
-	_set_slide_velocity(landing_velocity * _landing_slide_transfer())
+	if _can_slide_on_table():
+		_set_slide_velocity(landing_velocity * _landing_slide_transfer())
+	else:
+		tableSlideVelocity = Vector2.ZERO
 	_refresh_floating_state_from_overlaps()
 
 func _apply_table_slide(delta: float) -> void:
+	if !_can_slide_on_table():
+		tableSlideVelocity = Vector2.ZERO
+		return
+
 	if dragging or outOfBoundsDropActive or tableSlideVelocity == Vector2.ZERO:
 		return
 
@@ -587,7 +665,8 @@ func _apply_table_slide(delta: float) -> void:
 	previousPosition = global_position
 
 func _handle_table_slide_bounce(collision_normal: Vector2) -> void:
-	if bounce <= 0.0:
+	var bounce_amount = _get_bounce()
+	if bounce_amount <= 0.0:
 		tableSlideVelocity = Vector2.ZERO
 		return
 
@@ -595,18 +674,18 @@ func _handle_table_slide_bounce(collision_normal: Vector2) -> void:
 		tableSlideVelocity = Vector2.ZERO
 		return
 
-	var bounced_velocity = tableSlideVelocity.bounce(collision_normal.normalized()) * bounce
+	var bounced_velocity = tableSlideVelocity.bounce(collision_normal.normalized()) * bounce_amount
 	if bounced_velocity.length() <= _slide_stop_speed():
 		tableSlideVelocity = Vector2.ZERO
 	else:
 		tableSlideVelocity = bounced_velocity
 
 func _get_mass() -> float:
-	return max(0.1, weight)
+	return max(0.1, _get_weight())
 
 func _get_object_restitution() -> float:
 	# Real-world coefficient of restitution is between 0 and 1.
-	return clamp(bounce, 0.0, 1.0)
+	return clamp(_get_bounce(), 0.0, 1.0)
 
 func _get_slide_velocity() -> Vector2:
 	return tableSlideVelocity
@@ -622,10 +701,11 @@ func _set_slide_velocity(new_velocity: Vector2) -> void:
 	previousPosition = global_position
 
 func _can_participate_in_object_bounce() -> bool:
-	return bounce_objects and !dragging and !outOfBoundsDropActive and cardStates == states.onTable
+	return bounce_objects and _can_bounce_objects() and _can_receive_object_bounce() and !dragging and !outOfBoundsDropActive and cardStates == states.onTable and _can_slide_on_table()
 
 func _handle_object_slide_bounce(other_area: Area2D) -> void:
-	if !bounce_objects or bounce <= 0.0:
+	var bounce_amount = _get_bounce()
+	if !bounce_objects or !_can_bounce_objects() or bounce_amount <= 0.0:
 		return
 
 	if other_area == null:
@@ -662,7 +742,7 @@ func _handle_object_slide_bounce(other_area: Area2D) -> void:
 				return
 			static_normal = -v1.normalized()
 
-		_set_slide_velocity(v1.bounce(static_normal.normalized()) * bounce)
+		_set_slide_velocity(v1.bounce(static_normal.normalized()) * bounce_amount)
 		return
 
 	# Process each collision once so both cards don't apply the same impulse twice.
@@ -703,6 +783,10 @@ func hand_handler():
 	if dragging:
 		return
 
+	if !_can_be_placed_in_hands():
+		cardStates = states.onTable
+		return
+
 	if cardFloating == floating.overRightHand:
 		cardStates = states.inRightHand
 	elif cardFloating == floating.overLeftHand:
@@ -726,12 +810,12 @@ func placement_handler():
 	if cardStates == states.inRightHand:
 		tableSlideVelocity = Vector2.ZERO
 		animate_to_position(rightHandPosition)
-		CardHandler.rightHandEmpty = false
+		CardHandler.claim_hand(CardHandler.HAND_RIGHT)
 		thisCardInRightHand = true
 	elif cardStates == states.inLeftHand:
 		tableSlideVelocity = Vector2.ZERO
 		animate_to_position(leftHandPosition)
-		CardHandler.leftHandEmpty = false
+		CardHandler.claim_hand(CardHandler.HAND_LEFT)
 		thisCardInLeftHand = true
 	elif cardStates == states.onTable and hasTableDropTarget:
 		animate_to_position(tableDropPosition)
@@ -742,12 +826,12 @@ func placement_handler():
 	elif cardFloating == floating.overNothing:
 		animate_to_position(previousPosition)
 	
-	if cardStates != states.inRightHand and !CardHandler.rightHandEmpty and thisCardInRightHand:
-		CardHandler.rightHandEmpty = true
+	if cardStates != states.inRightHand and !CardHandler.is_hand_available(CardHandler.HAND_RIGHT) and thisCardInRightHand:
+		CardHandler.release_hand(CardHandler.HAND_RIGHT)
 		thisCardInRightHand = false
 	
-	if cardStates != states.inLeftHand and !CardHandler.leftHandEmpty and thisCardInLeftHand:
-		CardHandler.leftHandEmpty = true
+	if cardStates != states.inLeftHand and !CardHandler.is_hand_available(CardHandler.HAND_LEFT) and thisCardInLeftHand:
+		CardHandler.release_hand(CardHandler.HAND_LEFT)
 		thisCardInLeftHand = false
 
 # Checks what layer the card has collided with and changes the state to the appropriate position
@@ -760,8 +844,7 @@ func _on_area_2d_area_entered(area: Area2D) -> void:
 	if area.get_collision_layer_value(4):
 		cardsTouching += 1
 		if dragging and !isColliding:
-			CardHandler.masterZ_Index += 1
-			z_index = CardHandler.masterZ_Index
+			z_index = CardHandler.next_card_z_index()
 
 		if !dragging and !outOfBoundsDropActive:
 			_handle_object_slide_bounce(area)
@@ -779,17 +862,20 @@ func _on_area_2d_area_exited(area: Area2D) -> void:
 func _refresh_floating_state_from_overlaps() -> void:
 	var overlapping_areas: Array[Area2D] = $Area2D.get_overlapping_areas()
 	cardFloating = floating.overNothing
+	var can_place_in_hands = _can_be_placed_in_hands()
 
 	# Priority is explicit so overlap ordering cannot cause random outcomes.
-	for area in overlapping_areas:
-		if area.get_collision_layer_value(3) and (CardHandler.rightHandEmpty or thisCardInRightHand):
-			cardFloating = floating.overRightHand
-			return
+	if can_place_in_hands:
+		for area in overlapping_areas:
+			if area.get_collision_layer_value(3) and CardHandler.is_hand_available(CardHandler.HAND_RIGHT, thisCardInRightHand):
+				cardFloating = floating.overRightHand
+				return
 
-	for area in overlapping_areas:
-		if area.get_collision_layer_value(2) and (CardHandler.leftHandEmpty or thisCardInLeftHand):
-			cardFloating = floating.overLeftHand
-			return
+	if can_place_in_hands:
+		for area in overlapping_areas:
+			if area.get_collision_layer_value(2) and CardHandler.is_hand_available(CardHandler.HAND_LEFT, thisCardInLeftHand):
+				cardFloating = floating.overLeftHand
+				return
 
 	for area in overlapping_areas:
 		if area.get_collision_layer_value(1):
