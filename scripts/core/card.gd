@@ -27,6 +27,8 @@ var paperC = preload("res://assets/testing/Paper C.png")
 @export_category("Visuals")
 @export var drag_hover_offset: Vector2 = Vector2(0.0, -30.0)
 @export var drag_hover_speed: float = 30.0
+@export var hand_drop_screen_margin: float = 0.0
+@export var in_hand_z_index: int = 101
 @export var shadow_offset: Vector2 = Vector2(0.0, 40.0)
 @export var shadow_fade_speed: float = 30.0
 @export var shadow_max_alpha: float = 0.28
@@ -64,6 +66,8 @@ var releasedDragThisFrame: bool = false
 var outOfBoundsDropActive: bool = false
 var outOfBoundsDropTarget: Vector2 = Vector2.ZERO
 var outOfBoundsDropVelocity: Vector2 = Vector2.ZERO
+var originalScale: Vector2 = Vector2.ONE
+var defaultZIndex: int = 0
 
 enum floating {overTable, overLeftHand, overRightHand, overNothing}
 var cardFloating : floating = floating.overTable
@@ -92,6 +96,8 @@ func _ready() -> void:
 	# Enables a setting that forces the only the top card to be selected when cards are overlaping
 	get_viewport().physics_object_picking_sort = true
 	get_viewport().physics_object_picking_first_only = true
+	defaultZIndex = z_index
+	originalScale = scale
 	previousPosition = global_position
 
 	if leftHand == null or rightHand == null:
@@ -100,17 +106,26 @@ func _ready() -> void:
 		rightHandPosition = global_position
 		return
 
-	# Snapshot hand positions once at startup.
-	leftHandPosition = leftHand.global_position
-	rightHandPosition = rightHand.global_position
+	_update_hand_positions()
 	_setup_shadow_clip_material()
 	_sync_shadow_texture()
 	update_perspective_scale()
 	update_drag_presentation(1.0)
 	call_deferred("_deferred_refresh_table_clip")
 
+func _update_hand_positions() -> void:
+	if leftHand != null and is_instance_valid(leftHand):
+		leftHandPosition = leftHand.global_position
+
+	if rightHand != null and is_instance_valid(rightHand):
+		rightHandPosition = rightHand.global_position
+
 # Updates the card's scale based on its position in the isometric perspective
 func update_perspective_scale() -> void:
+	if cardStates == states.inLeftHand or cardStates == states.inRightHand:
+		scale = originalScale
+		return
+
 	# Project the card onto the table's far-to-near diagonal so both X and Y affect scale.
 	var depth_vector = perspective_near_point - perspective_far_point
 	var depth_length_squared = depth_vector.length_squared()
@@ -357,6 +372,41 @@ func animate_to_position(target_position: Vector2) -> void:
 	placementTween.tween_property(self, "global_position", target_position, snap_animation_duration)
 	placementTween.finished.connect(_on_placement_tween_finished)
 
+func follow_in_hand_target(target_position: Vector2) -> void:
+	global_position = target_position
+	z_index = _clamped_in_hand_z_index()
+
+func _clamped_in_hand_z_index() -> int:
+	return clampi(in_hand_z_index, RenderingServer.CANVAS_ITEM_Z_MIN, RenderingServer.CANVAS_ITEM_Z_MAX)
+
+func _is_world_position_on_screen(world_position: Vector2, margin: float = 0.0) -> bool:
+	var viewport_rect = get_viewport_rect().grow(margin)
+	var screen_position = get_viewport().get_canvas_transform() * world_position
+	return viewport_rect.has_point(screen_position)
+
+func _is_hand_anchor_active(hand_anchor: Node2D, hand_position: Vector2) -> bool:
+	if hand_anchor == null or !is_instance_valid(hand_anchor):
+		return false
+
+	if !hand_anchor.is_visible_in_tree():
+		return false
+
+	return _is_world_position_on_screen(hand_position, hand_drop_screen_margin)
+
+func _force_drop_from_hand() -> void:
+	if thisCardInRightHand:
+		CardHandler.release_hand(CardHandler.HAND_RIGHT)
+		thisCardInRightHand = false
+
+	if thisCardInLeftHand:
+		CardHandler.release_hand(CardHandler.HAND_LEFT)
+		thisCardInLeftHand = false
+
+	cardStates = states.onTable
+	tableSlideVelocity = Vector2.ZERO
+	tableDropPosition = _aligned_drop_target_on_table(global_position)
+	hasTableDropTarget = true
+
 func _stop_placement_tween(clear_target: bool = true) -> void:
 	if placementTween != null and placementTween.is_valid():
 		placementTween.kill()
@@ -383,6 +433,7 @@ func _physics_process(delta: float) -> void:
 	releasedDragThisFrame = false
 	var previous_card_position = global_position
 	mouseDifference = mousePosition - get_global_mouse_position()
+	_update_hand_positions()
 	drag_handler()
 
 	if delta > 0.0:
@@ -399,6 +450,20 @@ func _physics_process(delta: float) -> void:
 	update_perspective_scale()
 	update_drag_presentation(delta)
 	mousePosition = get_global_mouse_position()
+
+func _process(_delta: float) -> void:
+	if dragging:
+		return
+
+	if placementTween != null and placementTween.is_valid():
+		return
+
+	if cardStates == states.inRightHand and thisCardInRightHand:
+		_update_hand_positions()
+		global_position = rightHandPosition
+	elif cardStates == states.inLeftHand and thisCardInLeftHand:
+		_update_hand_positions()
+		global_position = leftHandPosition
 
 func _slide_stop_speed() -> float:
 	# Higher friction raises the speed threshold where slide is considered settled.
@@ -787,17 +852,33 @@ func hand_handler():
 		cardStates = states.onTable
 		return
 
-	if cardFloating == floating.overRightHand:
-		cardStates = states.inRightHand
-	elif cardFloating == floating.overLeftHand:
-		cardStates = states.inLeftHand
-	elif cardFloating == floating.overTable or cardFloating == floating.overNothing:
-		cardStates = states.onTable
+	# State transitions are only evaluated on release frames so hands cannot auto-capture.
+	if releasedDragThisFrame:
+		if cardFloating == floating.overRightHand:
+			cardStates = states.inRightHand
+		elif cardFloating == floating.overLeftHand:
+			cardStates = states.inLeftHand
+		else:
+			cardStates = states.onTable
+		return
+
+	# Between releases, preserve held state if already claimed.
+	if cardStates == states.inRightHand and thisCardInRightHand:
+		return
+	if cardStates == states.inLeftHand and thisCardInLeftHand:
+		return
+
+	cardStates = states.onTable
 
 # Handles where the card will be placed when let go of by the player
 func placement_handler():
 	if dragging:
 		return
+
+	if cardStates == states.inRightHand and !_is_hand_anchor_active(rightHand, rightHandPosition):
+		_force_drop_from_hand()
+	elif cardStates == states.inLeftHand and !_is_hand_anchor_active(leftHand, leftHandPosition):
+		_force_drop_from_hand()
 
 	if outOfBoundsDropActive:
 		_stop_placement_tween()
@@ -809,12 +890,26 @@ func placement_handler():
 
 	if cardStates == states.inRightHand:
 		tableSlideVelocity = Vector2.ZERO
-		animate_to_position(rightHandPosition)
+		z_index = _clamped_in_hand_z_index()
+		if placementTween != null and placementTween.is_valid():
+			if !hasPlacementTarget or !placementTargetPosition.is_equal_approx(rightHandPosition):
+				animate_to_position(rightHandPosition)
+		elif thisCardInRightHand:
+			follow_in_hand_target(rightHandPosition)
+		else:
+			animate_to_position(rightHandPosition)
 		CardHandler.claim_hand(CardHandler.HAND_RIGHT)
 		thisCardInRightHand = true
 	elif cardStates == states.inLeftHand:
 		tableSlideVelocity = Vector2.ZERO
-		animate_to_position(leftHandPosition)
+		z_index = _clamped_in_hand_z_index()
+		if placementTween != null and placementTween.is_valid():
+			if !hasPlacementTarget or !placementTargetPosition.is_equal_approx(leftHandPosition):
+				animate_to_position(leftHandPosition)
+		elif thisCardInLeftHand:
+			follow_in_hand_target(leftHandPosition)
+		else:
+			animate_to_position(leftHandPosition)
 		CardHandler.claim_hand(CardHandler.HAND_LEFT)
 		thisCardInLeftHand = true
 	elif cardStates == states.onTable and hasTableDropTarget:
@@ -826,13 +921,15 @@ func placement_handler():
 	elif cardFloating == floating.overNothing:
 		animate_to_position(previousPosition)
 	
-	if cardStates != states.inRightHand and !CardHandler.is_hand_available(CardHandler.HAND_RIGHT) and thisCardInRightHand:
+	if cardStates != states.inRightHand and thisCardInRightHand:
 		CardHandler.release_hand(CardHandler.HAND_RIGHT)
 		thisCardInRightHand = false
+		z_index = defaultZIndex
 	
-	if cardStates != states.inLeftHand and !CardHandler.is_hand_available(CardHandler.HAND_LEFT) and thisCardInLeftHand:
+	if cardStates != states.inLeftHand and thisCardInLeftHand:
 		CardHandler.release_hand(CardHandler.HAND_LEFT)
 		thisCardInLeftHand = false
+		z_index = defaultZIndex
 
 # Checks what layer the card has collided with and changes the state to the appropriate position
 func _on_area_2d_area_entered(area: Area2D) -> void:
