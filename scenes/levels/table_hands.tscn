@@ -23,7 +23,7 @@ tracks/0/keys = {
 
 [sub_resource type="Animation" id="Animation_h2h62"]
 resource_name = "enter_hold"
-length = 0.16666667
+length = 0.3
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -31,7 +31,7 @@ tracks/0/path = NodePath("leftHandArea/LeftHandBack:texture")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.11),
+"times": PackedFloat32Array(0, 0.05),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
 "values": [ExtResource("2_pkl0r"), ExtResource("2_36hrx")]
@@ -41,6 +41,43 @@ tracks/0/keys = {
 _data = {
 &"RESET": SubResource("Animation_36hrx"),
 &"enter_hold": SubResource("Animation_h2h62")
+}
+
+[sub_resource type="Animation" id="Animation_om6tl"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("rightHandArea/RightHandBack:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("3_8ll3t")]
+}
+
+[sub_resource type="Animation" id="Animation_pivpx"]
+resource_name = "enter_hold"
+length = 0.11
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("rightHandArea/RightHandBack:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [ExtResource("3_8ll3t"), ExtResource("3_h2h62")]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_o2oxd"]
+_data = {
+&"RESET": SubResource("Animation_om6tl"),
+&"enter_hold": SubResource("Animation_pivpx")
 }
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bndc0"]
@@ -58,6 +95,7 @@ right_holding_front_texture = ExtResource("3_h2h62")
 libraries/ = SubResource("AnimationLibrary_om6tl")
 
 [node name="RightHandAnimationPlayer" type="AnimationPlayer" parent="." unique_id=2043372792]
+libraries/ = SubResource("AnimationLibrary_o2oxd")
 
 [node name="leftHandArea" type="Area2D" parent="." unique_id=931342569]
 z_index = 100
@@ -67,8 +105,8 @@ collision_layer = 2
 collision_mask = 8
 
 [node name="LeftHandBack" type="Sprite2D" parent="leftHandArea" unique_id=536913258]
-position = Vector2(-88.25, 48.732727)
-scale = Vector2(0.50300306, 0.503003)
+position = Vector2(-100.99997, 99.99997)
+scale = Vector2(0.9232872, 0.9232871)
 texture = ExtResource("2_pkl0r")
 
 [node name="LeftHandFront" type="Sprite2D" parent="leftHandArea" unique_id=1437125728]
@@ -78,7 +116,7 @@ position = Vector2(-88.25, 48.732727)
 scale = Vector2(0.50300306, 0.503003)
 
 [node name="leftHandShape" type="CollisionShape2D" parent="leftHandArea" unique_id=1693326600]
-position = Vector2(-3, 5)
+position = Vector2(91, 13)
 shape = SubResource("RectangleShape2D_bndc0")
 
 [node name="rightHandArea" type="Area2D" parent="." unique_id=732417667]
@@ -89,8 +127,8 @@ collision_layer = 4
 collision_mask = 8
 
 [node name="RightHandBack" type="Sprite2D" parent="rightHandArea" unique_id=961989318]
-position = Vector2(77.90051, 106.8833)
-scale = Vector2(0.48543006, 0.48543)
+position = Vector2(170.04974, 181.04974)
+scale = Vector2(0.7798579, 0.7798578)
 texture = ExtResource("3_8ll3t")
 
 [node name="RightHandFront" type="Sprite2D" parent="rightHandArea" unique_id=1464133077]
@@ -100,5 +138,5 @@ position = Vector2(77.90051, 106.8833)
 scale = Vector2(0.48543006, 0.48543)
 
 [node name="rightHandShape" type="CollisionShape2D" parent="rightHandArea" unique_id=468134139]
-position = Vector2(10, 11)
+position = Vector2(38, 31)
 shape = SubResource("RectangleShape2D_sr0d8")
