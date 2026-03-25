@@ -1,0 +1,104 @@
+[gd_scene format=3 uid="uid://xw0q526hvxl2"]
+
+[ext_resource type="Script" uid="uid://d03b0hrwf4lo6" path="res://scripts/core/table_hands_ui_controller.gd" id="1_vn3ut"]
+[ext_resource type="Texture2D" uid="uid://lr3oh2m02ss4" path="res://assets/art/hands/HoldingLeftHand.png" id="2_36hrx"]
+[ext_resource type="Texture2D" uid="uid://hxn6sqc8xmao" path="res://assets/art/hands/IdleLeftHand.png" id="2_pkl0r"]
+[ext_resource type="Texture2D" uid="uid://dbp5ls2yldyxi" path="res://assets/art/hands/IdleRightHand.png" id="3_8ll3t"]
+[ext_resource type="Texture2D" uid="uid://dkqhlh0r1gu82" path="res://assets/art/hands/HoldingRightHand.png" id="3_h2h62"]
+
+[sub_resource type="Animation" id="Animation_36hrx"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("leftHandArea/LeftHandBack:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("2_pkl0r")]
+}
+
+[sub_resource type="Animation" id="Animation_h2h62"]
+resource_name = "enter_hold"
+length = 0.16666667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("leftHandArea/LeftHandBack:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.11),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [ExtResource("2_pkl0r"), ExtResource("2_36hrx")]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_om6tl"]
+_data = {
+&"RESET": SubResource("Animation_36hrx"),
+&"enter_hold": SubResource("Animation_h2h62")
+}
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bndc0"]
+size = Vector2(112.5, 194)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sr0d8"]
+size = Vector2(110.25, 179.26727)
+
+[node name="TableHands" type="Node2D" unique_id=622040155]
+script = ExtResource("1_vn3ut")
+left_holding_front_texture = ExtResource("2_36hrx")
+right_holding_front_texture = ExtResource("3_h2h62")
+
+[node name="LeftHandAnimationPlayer" type="AnimationPlayer" parent="." unique_id=1745951705]
+libraries/ = SubResource("AnimationLibrary_om6tl")
+
+[node name="RightHandAnimationPlayer" type="AnimationPlayer" parent="." unique_id=2043372792]
+
+[node name="leftHandArea" type="Area2D" parent="." unique_id=931342569]
+z_index = 100
+z_as_relative = false
+position = Vector2(-238, -218)
+collision_layer = 2
+collision_mask = 8
+
+[node name="LeftHandBack" type="Sprite2D" parent="leftHandArea" unique_id=536913258]
+position = Vector2(-88.25, 48.732727)
+scale = Vector2(0.50300306, 0.503003)
+texture = ExtResource("2_pkl0r")
+
+[node name="LeftHandFront" type="Sprite2D" parent="leftHandArea" unique_id=1437125728]
+visible = false
+z_index = 2
+position = Vector2(-88.25, 48.732727)
+scale = Vector2(0.50300306, 0.503003)
+
+[node name="leftHandShape" type="CollisionShape2D" parent="leftHandArea" unique_id=1693326600]
+position = Vector2(-3, 5)
+shape = SubResource("RectangleShape2D_bndc0")
+
+[node name="rightHandArea" type="Area2D" parent="." unique_id=732417667]
+z_index = 100
+z_as_relative = false
+position = Vector2(204, -275)
+collision_layer = 4
+collision_mask = 8
+
+[node name="RightHandBack" type="Sprite2D" parent="rightHandArea" unique_id=961989318]
+position = Vector2(77.90051, 106.8833)
+scale = Vector2(0.48543006, 0.48543)
+texture = ExtResource("3_8ll3t")
+
+[node name="RightHandFront" type="Sprite2D" parent="rightHandArea" unique_id=1464133077]
+visible = false
+z_index = 2
+position = Vector2(77.90051, 106.8833)
+scale = Vector2(0.48543006, 0.48543)
+
+[node name="rightHandShape" type="CollisionShape2D" parent="rightHandArea" unique_id=468134139]
+position = Vector2(10, 11)
+shape = SubResource("RectangleShape2D_sr0d8")
