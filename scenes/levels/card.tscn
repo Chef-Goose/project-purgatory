@@ -2,17 +2,15 @@
 
 [ext_resource type="Script" uid="uid://bf0t1xdil0tpv" path="res://scripts/core/card.gd" id="1_fw4gr"]
 [ext_resource type="Texture2D" uid="uid://benr7m8oq8esp" path="res://assets/testing/Paper A.png" id="1_tlfws"]
-[ext_resource type="Resource" path="res://assets/data/cards/card_physics_default.tres" id="3_gqgyy"]
-[ext_resource type="Resource" path="res://assets/data/cards/table_item_capabilities_default.tres" id="4_6bet7"]
+[ext_resource type="AudioStream" uid="uid://cdkqtrmyvy36j" path="res://assets/audio/Paper & Office Fan.wav" id="2_4jgu4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fw4gr"]
 size = Vector2(154, 238)
 
 [node name="card" type="Node2D" unique_id=1909657811 node_paths=PackedStringArray("paperType")]
 script = ExtResource("1_fw4gr")
-physics_profile = ExtResource("3_gqgyy")
-capabilities_profile = ExtResource("4_6bet7")
 paperType = NodePath("card")
+sound_hand_pickup = ExtResource("2_4jgu4")
 
 [node name="Shadow" type="Sprite2D" parent="." unique_id=79335273]
 modulate = Color(0, 0, 0, 0)

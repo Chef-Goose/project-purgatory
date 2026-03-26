@@ -39,6 +39,13 @@ var paperC = preload("res://assets/testing/Paper C.png")
 @export var capabilities_profile: Resource = preload("res://assets/data/cards/table_item_capabilities_default.tres")
 @export var bounce_objects: bool = true
 
+@export_category("Audio")
+@export var sound_pickup: AudioStream = null  # Sound when picking up from table
+@export var sound_drop: AudioStream = null  # Sound when dropping on table
+@export var sound_slide: AudioStream = null  # Sound while sliding on table
+@export var sound_hand_pickup: AudioStream = null  # Sound when picking up into a hand
+@export var sound_hand_drop: AudioStream = null  # Sound when dropping from a hand
+
 var mousePosition : Vector2 = Vector2.ZERO
 var leftHandPosition: Vector2 = Vector2.ZERO
 var rightHandPosition: Vector2 = Vector2.ZERO
@@ -68,6 +75,11 @@ var outOfBoundsDropTarget: Vector2 = Vector2.ZERO
 var outOfBoundsDropVelocity: Vector2 = Vector2.ZERO
 var originalScale: Vector2 = Vector2.ONE
 var defaultZIndex: int = 0
+
+# Audio playback
+var audioPlayer: AudioStreamPlayer
+var lastSlideVelocity: Vector2 = Vector2.ZERO
+var wasSliding: bool = false
 
 enum floating {overTable, overLeftHand, overRightHand, overNothing}
 var cardFloating : floating = floating.overTable
@@ -112,6 +124,13 @@ func _ready() -> void:
 	update_perspective_scale()
 	update_drag_presentation(1.0)
 	call_deferred("_deferred_refresh_table_clip")
+	_setup_audio_player()
+
+func _setup_audio_player() -> void:
+	# Create an audio player node if it doesn't exist
+	if audioPlayer == null:
+		audioPlayer = AudioStreamPlayer.new()
+		add_child(audioPlayer)
 
 func _update_hand_positions() -> void:
 	if leftHand != null and is_instance_valid(leftHand):
@@ -394,6 +413,7 @@ func _is_hand_anchor_active(hand_anchor: Node2D, hand_position: Vector2) -> bool
 	return _is_world_position_on_screen(hand_position, hand_drop_screen_margin)
 
 func _force_drop_from_hand() -> void:
+	var was_in_hand = thisCardInRightHand or thisCardInLeftHand
 	if thisCardInRightHand:
 		CardHandler.release_hand(CardHandler.HAND_RIGHT)
 		thisCardInRightHand = false
@@ -401,6 +421,9 @@ func _force_drop_from_hand() -> void:
 	if thisCardInLeftHand:
 		CardHandler.release_hand(CardHandler.HAND_LEFT)
 		thisCardInLeftHand = false
+
+	if was_in_hand:
+		play_hand_drop_sound()
 
 	cardStates = states.onTable
 	tableSlideVelocity = Vector2.ZERO
@@ -591,6 +614,7 @@ func drag_handler():
 		hasTableDropTarget = true
 		z_index = CardHandler.next_card_z_index()
 		_refresh_floating_state_from_overlaps()
+		play_pickup_sound()
 	elif dragging and Input.is_action_just_released("leftClick"):
 		dragging = false
 		releasedDragThisFrame = true
@@ -687,8 +711,11 @@ func _finish_out_of_bounds_drop() -> void:
 	_hide_drop_shadow()
 	if _can_slide_on_table():
 		_set_slide_velocity(landing_velocity * _landing_slide_transfer())
+		if tableSlideVelocity.length() > _slide_stop_speed():
+			wasSliding = true
 	else:
 		tableSlideVelocity = Vector2.ZERO
+		play_drop_sound()
 	_refresh_floating_state_from_overlaps()
 
 func _apply_table_slide(delta: float) -> void:
@@ -721,29 +748,43 @@ func _apply_table_slide(delta: float) -> void:
 	var speed = tableSlideVelocity.length()
 	speed = max(0.0, speed - (_slide_friction_force() * delta))
 	if speed <= _slide_stop_speed():
+		if wasSliding:
+			play_drop_sound()
 		tableSlideVelocity = Vector2.ZERO
 		tableDropPosition = global_position
 		hasTableDropTarget = true
+		wasSliding = false
 	else:
 		tableSlideVelocity = tableSlideVelocity.normalized() * speed
+		wasSliding = true
 
 	previousPosition = global_position
 
 func _handle_table_slide_bounce(collision_normal: Vector2) -> void:
 	var bounce_amount = _get_bounce()
 	if bounce_amount <= 0.0:
+		if wasSliding:
+			play_drop_sound()
 		tableSlideVelocity = Vector2.ZERO
+		wasSliding = false
 		return
 
 	if collision_normal == Vector2.ZERO:
+		if wasSliding:
+			play_drop_sound()
 		tableSlideVelocity = Vector2.ZERO
+		wasSliding = false
 		return
 
 	var bounced_velocity = tableSlideVelocity.bounce(collision_normal.normalized()) * bounce_amount
 	if bounced_velocity.length() <= _slide_stop_speed():
+		if wasSliding:
+			play_drop_sound()
 		tableSlideVelocity = Vector2.ZERO
+		wasSliding = false
 	else:
 		tableSlideVelocity = bounced_velocity
+		wasSliding = true
 
 func _get_mass() -> float:
 	return max(0.1, _get_weight())
@@ -856,9 +897,13 @@ func hand_handler():
 	if releasedDragThisFrame:
 		if cardFloating == floating.overRightHand:
 			cardStates = states.inRightHand
+			play_hand_pickup_sound()
 		elif cardFloating == floating.overLeftHand:
 			cardStates = states.inLeftHand
+			play_hand_pickup_sound()
 		else:
+			if (cardStates == states.inRightHand or cardStates == states.inLeftHand) and cardFloating == floating.overTable:
+				play_hand_drop_sound()
 			cardStates = states.onTable
 		return
 
@@ -868,6 +913,8 @@ func hand_handler():
 	if cardStates == states.inLeftHand and thisCardInLeftHand:
 		return
 
+	if (cardStates == states.inRightHand or cardStates == states.inLeftHand) and cardFloating == floating.overTable:
+		play_hand_drop_sound()
 	cardStates = states.onTable
 
 # Handles where the card will be placed when let go of by the player
@@ -954,6 +1001,29 @@ func _on_area_2d_area_exited(area: Area2D) -> void:
 		cardsTouching -= 1
 		if cardsTouching == 0:
 			isColliding = false
+
+
+# Audio playback helper methods
+func play_sound(audio_stream: AudioStream) -> void:
+	if audio_stream == null or audioPlayer == null:
+		return
+	audioPlayer.stream = audio_stream
+	audioPlayer.play()
+
+func play_pickup_sound() -> void:
+	play_sound(sound_pickup)
+
+func play_drop_sound() -> void:
+	play_sound(sound_drop)
+
+func play_slide_sound() -> void:
+	play_sound(sound_slide)
+
+func play_hand_pickup_sound() -> void:
+	play_sound(sound_hand_pickup)
+
+func play_hand_drop_sound() -> void:
+	play_sound(sound_hand_drop)
 
 
 func _refresh_floating_state_from_overlaps() -> void:
