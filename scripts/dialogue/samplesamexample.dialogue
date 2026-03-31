@@ -1,0 +1,46 @@
+~ start
+Sample Sam: [[Hi|Hello|Howdy|Sup human]]. Welcome to Purgatory!
+Sample Sam: I'm Sample Sam.
+Sample Sam: You can call me by my first name.
+Sample: Sample
+
+- Show me the full tag tour.
+	Sample: Acceptable. We will proceed methodically. => tag_tour
+- Show me combined tag stress tests.
+	Sample: Good choice. We will stack behaviors and observe outcomes. => combo_lab
+- End the demo.
+	Sample: Understood. Demonstration is over. Bye loser. => END
+
+
+~ tag_tour
+Sample: Mood tag: sad. [#mood=sad]
+Sample: Mood tag: angry. [#mood=angry]
+Sample: Mood tag: idle. [#mood=idle]
+Sample: Scroll speed: fast. [font_size=16]I will speak quickly for no reason.[/font_size] [#scroll_speed=0.01]
+Sample: Scroll speed: slow. [font_size=24]Now we respect each syllable.[/font_size] [#scroll_speed=0.06]
+Sample: Auto advance: immediate. [#auto_advance=1]
+Sample: Auto advance: delayed. [font_size=20]Brief pause for dramatic effect.[/font_size] [#auto_advance=1, #auto_advance_delay=1.0]
+Sample: Force scroll active. [font_size=22]You will read this at my pace.[/font_size] [#force_scroll=1]
+Sample: Music cue: paper. [#music=paper]
+Sample: Music cue: stop. [#music=stop]
+Sample: End of tag tour. Performance review: adequate.
+- Back to start menu.
+	Sample: Returning to menu. => start
+- End now.
+	Sample: Closing sequence. => END
+
+
+~ combo_lab
+Sample: Combo 1: angry, fast, and auto advance. [font_size=26]FLIP YOU YOU FRICKING FLIPPER.[/font_size] [#mood=angry, #scroll_speed=0.01, #auto_advance=1]
+Sample: Combo 2: sad, delayed auto advance. [font_size=20]We will pause and reflect.[/font_size] [#mood=sad, #auto_advance=1, #auto_advance_delay=1.4]
+Sample: Combo 3: talking mood with slow scroll. [#mood=talking, #scroll_speed=0.05]
+Sample: Combo 4: force scroll with slow speed. [font_size=24]No skipping. I mean it. You have to watch this whole thing spell out slowly.[/font_size] [#force_scroll=1, #scroll_speed=0.07]
+Sample: Combo 5: angry with music start. [#mood=angry, #music=paper]
+Sample: Combo 6: idle with music stop. [#mood=idle, #music=stop]
+Sample: Combo lab complete.
+- Back to start menu.
+	Sample: Returning to menu. => start
+- End now.
+	Sample: Session complete. => END
+
+=> END

@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://dafkegdecevax"]
+
+[ext_resource type="PackedScene" uid="uid://1sdpebm0q8rq" path="res://scenes/ui/dialogue_ui.tscn" id="1_3w3mo"]
+[ext_resource type="Resource" uid="uid://ciy7ma7h3vt44" path="res://scripts/dialogue/samplesamexample.dialogue" id="2_f6din"]
+
+[node name="SampleSamInteraction" type="Control" unique_id=720159203]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=361417664]
+layer = -10
+
+[node name="Background" type="ColorRect" parent="BackgroundLayer" unique_id=288548263]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.14902, 0.176471, 0.247059, 1)
+
+[node name="DialogueUI" parent="." unique_id=819272617 instance=ExtResource("1_3w3mo")]
+layout_mode = 1
+dialogue_resource = ExtResource("2_f6din")

@@ -9,6 +9,15 @@ extends Control
 @export var will_block_other_input: bool = true
 @export var force_scroll_tag: String = "force_scroll"
 @export_range(0.0, 2.0, 0.01) var min_advance_delay_seconds: float = 0.2
+@export var portrait_node_path: NodePath
+@export var mood_tag_name: String = "mood"
+@export var scroll_speed_tag_name: String = "scroll_speed"
+@export var auto_advance_tag_name: String = "auto_advance"
+@export var auto_advance_delay_tag_name: String = "auto_advance_delay"
+@export var speaking_mood_name: String = "talking"
+@export var idle_mood_name: String = "idle"
+@export var default_character_moods: Dictionary = {}
+@export var character_portrait_sets: Array[CharacterPortraitSet] = []
 
 @onready var text_box: PanelContainer = $TextBox
 @onready var dialogue_label: DialogueLabel = $TextBox/RichTextLabel
@@ -17,11 +26,15 @@ extends Control
 @onready var progress: Polygon2D = $Control/Polygon2D
 @onready var responses_menu: VBoxContainer = $ResponsesMenu
 @onready var response_template: Button = $ResponsesMenu/ResponseTemplate
+@onready var portrait: CharacterPortrait = _resolve_portrait()
 
 var dialogue_line: DialogueLine
 var temporary_game_states: Array = []
 var is_waiting_for_input: bool = false
 var _advance_unlock_time_msec: int = 0
+var _portrait_sets_by_character_name: Dictionary = {}
+var _active_portrait_speaker_name: String = ""
+var _default_seconds_per_step: float = 0.03
 
 
 func _ready() -> void:
@@ -31,6 +44,10 @@ func _ready() -> void:
 	response_template.focus_mode = Control.FOCUS_ALL
 	response_template.visible = false
 	_clear_responses()
+	_build_portrait_set_lookup()
+	_default_seconds_per_step = dialogue_label.seconds_per_step
+	if portrait == null:
+		push_warning("DialogueUI could not resolve a CharacterPortrait. Set portrait_node_path on DialogueUI or add a CharacterPortrait node to the scene tree.")
 
 	visible = false
 	progress.visible = false
@@ -40,6 +57,19 @@ func _ready() -> void:
 			push_error("Auto start is enabled but dialogue_resource is not set on DialogueUI.")
 			return
 		start()
+
+
+func _resolve_portrait() -> CharacterPortrait:
+	if not portrait_node_path.is_empty():
+		var portrait_from_path: CharacterPortrait = get_node_or_null(portrait_node_path) as CharacterPortrait
+		if portrait_from_path != null:
+			return portrait_from_path
+
+	var portrait_from_group: CharacterPortrait = get_tree().get_first_node_in_group("character_portrait") as CharacterPortrait
+	if portrait_from_group != null:
+		return portrait_from_group
+
+	return null
 
 
 func _process(_delta: float) -> void:
@@ -82,20 +112,152 @@ func _apply_dialogue_line() -> void:
 	speaker_box.visible = not dialogue_line.character.is_empty()
 	speaker_label.text = tr(dialogue_line.character, "dialogue")
 	_clear_responses()
+	var has_explicit_mood_tag: bool = _apply_portrait_for_line()
+	_apply_scroll_speed_for_line()
 
 	dialogue_label.dialogue_line = dialogue_line
 
 	if not dialogue_line.text.is_empty():
 		dialogue_label.type_out()
 		await dialogue_label.finished_typing
+		if portrait != null and not has_explicit_mood_tag:
+			portrait.set_mood_by_name(idle_mood_name)
 
 	if dialogue_line.responses.size() > 0:
 		_show_responses(dialogue_line.responses)
 		is_waiting_for_input = false
 		return
 
+	if _should_auto_advance_line():
+		var delay_seconds: float = _get_auto_advance_delay_seconds_for_line()
+		if delay_seconds > 0.0:
+			await get_tree().create_timer(delay_seconds).timeout
+
+		if visible and is_instance_valid(dialogue_line):
+			_go_to_line(dialogue_line.next_id)
+		return
+
 	_begin_advance_lock()
 	is_waiting_for_input = true
+
+
+func _apply_portrait_for_line() -> bool:
+	if portrait == null or not is_instance_valid(dialogue_line):
+		return false
+
+	_apply_portrait_set_for_speaker(dialogue_line.character)
+
+	var has_explicit_mood_tag: bool = dialogue_line.has_tag(mood_tag_name)
+	var mood_name: String = dialogue_line.get_tag_value(mood_tag_name)
+
+	if mood_name.is_empty():
+		if default_character_moods.has(dialogue_line.character):
+			mood_name = str(default_character_moods[dialogue_line.character])
+		elif not dialogue_line.text.is_empty():
+			mood_name = speaking_mood_name
+		else:
+			mood_name = idle_mood_name
+
+	portrait.set_mood_by_name(mood_name)
+	return has_explicit_mood_tag
+
+
+func _build_portrait_set_lookup() -> void:
+	_portrait_sets_by_character_name.clear()
+	for portrait_set: CharacterPortraitSet in character_portrait_sets:
+		if portrait_set == null:
+			continue
+
+		var speaker_name: String = portrait_set.speaker_name.strip_edges()
+		if speaker_name.is_empty():
+			continue
+
+		_portrait_sets_by_character_name[speaker_name.to_lower()] = portrait_set
+
+		for alias in portrait_set.speaker_aliases:
+			var alias_name: String = str(alias).strip_edges()
+			if alias_name.is_empty():
+				continue
+
+			_portrait_sets_by_character_name[alias_name.to_lower()] = portrait_set
+
+
+func _apply_portrait_set_for_speaker(speaker_name: String) -> void:
+	if portrait == null:
+		return
+
+	var normalized_name: String = speaker_name.strip_edges().to_lower()
+	if normalized_name.is_empty():
+		return
+
+	if normalized_name == _active_portrait_speaker_name:
+		return
+
+	if not _portrait_sets_by_character_name.has(normalized_name):
+		return
+
+	var portrait_set: CharacterPortraitSet = _portrait_sets_by_character_name[normalized_name] as CharacterPortraitSet
+	if portrait_set == null or portrait_set.idle_texture == null:
+		return
+
+	portrait.set_texture_set(
+		portrait_set.idle_texture,
+		portrait_set.talking_texture,
+		portrait_set.angry_texture,
+		portrait_set.sad_texture
+	)
+	_active_portrait_speaker_name = normalized_name
+
+
+func _apply_scroll_speed_for_line() -> void:
+	if dialogue_label == null or not is_instance_valid(dialogue_line):
+		return
+
+	var seconds_per_step: float = _default_seconds_per_step
+	if dialogue_line.has_tag(scroll_speed_tag_name):
+		var raw_speed: String = dialogue_line.get_tag_value(scroll_speed_tag_name).strip_edges()
+		if not raw_speed.is_empty():
+			var parsed_speed: float = raw_speed.to_float()
+			if parsed_speed > 0.0:
+				seconds_per_step = parsed_speed
+			else:
+				push_warning("Invalid scroll speed tag value '%s'. Using default speed." % raw_speed)
+
+	dialogue_label.seconds_per_step = seconds_per_step
+
+
+func _should_auto_advance_line() -> bool:
+	if not is_instance_valid(dialogue_line):
+		return false
+
+	var has_auto_advance_tag: bool = dialogue_line.has_tag(auto_advance_tag_name) or auto_advance_tag_name in dialogue_line.tags
+	if not has_auto_advance_tag:
+		return false
+
+	var raw_value: String = dialogue_line.get_tag_value(auto_advance_tag_name).strip_edges().to_lower()
+	if raw_value in ["0", "false", "no", "off"]:
+		return false
+
+	return true
+
+
+func _get_auto_advance_delay_seconds_for_line() -> float:
+	if not is_instance_valid(dialogue_line):
+		return 0.0
+
+	if not dialogue_line.has_tag(auto_advance_delay_tag_name):
+		return 0.0
+
+	var raw_delay: String = dialogue_line.get_tag_value(auto_advance_delay_tag_name).strip_edges()
+	if raw_delay.is_empty():
+		return 0.0
+
+	var parsed_delay: float = raw_delay.to_float()
+	if parsed_delay < 0.0:
+		push_warning("Invalid auto advance delay '%s'. Using 0." % raw_delay)
+		return 0.0
+
+	return parsed_delay
 
 
 func _show_responses(responses: Array) -> void:
