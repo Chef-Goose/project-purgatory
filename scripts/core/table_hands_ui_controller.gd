@@ -36,6 +36,18 @@ var _right_hand_layer: int = 0
 var _right_hand_mask: int = 0
 var _left_holding_state: bool = false
 var _right_holding_state: bool = false
+@onready var _object_handler: Node = get_node_or_null("/root/ObjectHandler")
+
+
+func _is_hand_available(slot: StringName) -> bool:
+	if _object_handler != null and _object_handler.has_method("is_hand_available"):
+		return _object_handler.is_hand_available(slot)
+	return true
+
+
+func _release_hand(slot: StringName) -> void:
+	if _object_handler != null and _object_handler.has_method("release_hand"):
+		_object_handler.release_hand(slot)
 
 
 func _ready() -> void:
@@ -91,15 +103,15 @@ func _set_hands_visible(visible_state: bool) -> void:
 	_set_hand_area_enabled(_right_hand_area, visible_state, _right_hand_layer, _right_hand_mask)
 
 	if not visible_state:
-		CardHandler.release_hand(CardHandler.HAND_LEFT)
-		CardHandler.release_hand(CardHandler.HAND_RIGHT)
+		_release_hand(&"left")
+		_release_hand(&"right")
 
 	_update_hand_visual_state(false)
 
 
 func _update_hand_visual_state(animate_transitions: bool) -> void:
-	var left_is_holding = !CardHandler.is_hand_available(CardHandler.HAND_LEFT)
-	var right_is_holding = !CardHandler.is_hand_available(CardHandler.HAND_RIGHT)
+	var left_is_holding = !_is_hand_available(&"left")
+	var right_is_holding = !_is_hand_available(&"right")
 
 	if left_is_holding != _left_holding_state:
 		_transition_left_hand(left_is_holding, animate_transitions)

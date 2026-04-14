@@ -3,19 +3,16 @@ extends Node2D
 const SHADOW_TABLE_CLIP_SHADER_PATH = "res://shaders/shadow_table_clip.gdshader"
 const SHADOW_CLIP_MAX_POINTS = 16
 const TABLE_ITEM_CAPABILITIES_SCRIPT = preload("res://scripts/core/table_item_capabilities.gd")
-
-# For testing -----------------------------------------------------------------
-var paperA = preload("res://assets/testing/Paper A.png")
-var paperB = preload("res://assets/testing/Paper B.png")
-var paperC = preload("res://assets/testing/Paper C.png")
+const OBJECT_PHYSICS_PROFILE_SCRIPT = preload("res://scripts/core/object_physics_profile.gd")
+const HAND_LEFT: StringName = &"left"
+const HAND_RIGHT: StringName = &"right"
 
 @export_category("References")
-@export var paperType := Sprite2D
-# End -------------------------------------------------------------------------
+@export var objectSprite := Sprite2D
 
 # Get hands for their positions
-@export var leftHand : Node2D
-@export var rightHand : Node2D
+var leftHand: Node2D = null
+var rightHand: Node2D = null
 
 # Perspective scaling based on the tables 45-degree view
 @export_category("Table Perspective")
@@ -34,9 +31,14 @@ var paperC = preload("res://assets/testing/Paper C.png")
 @export var shadow_max_alpha: float = 0.28
 @export var snap_animation_duration: float = 0.1
 
+@export_category("Collision")
+@export var use_sprite_outline_collision: bool = true
+@export_range(0.0, 1.0, 0.01) var collision_alpha_threshold: float = 0.1
+@export_range(0.5, 12.0, 0.1) var collision_polygon_simplify: float = 2.0
+
 @export_category("Physics")
-@export var physics_profile: CardPhysicsProfile = preload("res://assets/data/cards/card_physics_default.tres")
-@export var capabilities_profile: Resource = preload("res://assets/data/cards/table_item_capabilities_default.tres")
+@export var physics_profile: Resource = preload("res://assets/data/object_physics/object_physics_default.tres")
+@export var capabilities_profile: Resource = preload("res://assets/data/object_physics/table_item_capabilities_default.tres")
 @export var bounce_objects: bool = true
 
 @export_category("Audio")
@@ -57,13 +59,13 @@ var lastTableArea: Area2D
 
 var isOver : bool
 var dragging : bool = false
-var thisCardInLeftHand : bool = false
-var thisCardInRightHand : bool = false
+var thisObjectInLeftHand : bool = false
+var thisObjectInRightHand : bool = false
 var isColliding: bool = false
 var hasPlacementTarget: bool = false
 var hasTableDropTarget: bool = false
 
-var cardsTouching: int = 0
+var objectsTouching: int = 0
 var placementTween: Tween
 var shadowClipMaterial: ShaderMaterial
 var shadowClipShader: Shader
@@ -82,30 +84,24 @@ var lastSlideVelocity: Vector2 = Vector2.ZERO
 var wasSliding: bool = false
 
 enum floating {overTable, overLeftHand, overRightHand, overNothing}
-var cardFloating : floating = floating.overTable
+var objectFloating : floating = floating.overTable
 enum states {onTable, inLeftHand, inRightHand}
-var cardStates : states = states.onTable
+var objectState : states = states.onTable
 
 @onready var shadowSprite: Sprite2D = $Shadow
+@onready var object_handler: Node = get_node_or_null("/root/ObjectHandler")
+@onready var area2d_node: Area2D = $Area2D
+@onready var object_collision_polygon: CollisionPolygon2D = $Area2D/CollisionPolygon2D
 
 func _ready() -> void:
 	if physics_profile == null:
-		physics_profile = CardPhysicsProfile.new()
+		physics_profile = OBJECT_PHYSICS_PROFILE_SCRIPT.new()
 	if capabilities_profile == null:
 		capabilities_profile = TABLE_ITEM_CAPABILITIES_SCRIPT.new()
 
-	# For testing -------------------------------------------------------------
-	if _uses_paper_test_random_texture():
-		var rand = randi_range(1,3)
-		if rand == 1:
-			paperType.texture = paperA
-		elif rand == 2:
-			paperType.texture = paperB
-		else:
-			paperType.texture = paperC
-	# End ---------------------------------------------------------------------
+	_auto_assign_hands()
 		
-	# Enables a setting that forces the only the top card to be selected when cards are overlaping
+	# Forces only the top overlapping object to be selectable.
 	get_viewport().physics_object_picking_sort = true
 	get_viewport().physics_object_picking_first_only = true
 	defaultZIndex = z_index
@@ -113,18 +109,35 @@ func _ready() -> void:
 	previousPosition = global_position
 
 	if leftHand == null or rightHand == null:
-		push_error("Card.gd: leftHand/rightHand is not assigned in the Inspector.")
+		push_warning("GameObject.gd: leftHand/rightHand were not found. Hand placement will be disabled for this object.")
 		leftHandPosition = global_position
 		rightHandPosition = global_position
-		return
 
 	_update_hand_positions()
+	_rebuild_object_collision_shape()
 	_setup_shadow_clip_material()
 	_sync_shadow_texture()
 	update_perspective_scale()
 	update_drag_presentation(1.0)
 	call_deferred("_deferred_refresh_table_clip")
 	_setup_audio_player()
+
+
+func _auto_assign_hands() -> void:
+	var scene_root = get_tree().current_scene
+	if scene_root == null:
+		return
+
+	leftHand = _find_hand_anchor(scene_root, &"leftHandArea")
+	rightHand = _find_hand_anchor(scene_root, &"rightHandArea")
+
+
+func _find_hand_anchor(scene_root: Node, expected_name: StringName) -> Node2D:
+	var direct = scene_root.find_child(String(expected_name), true, false)
+	if direct is Node2D:
+		return direct as Node2D
+
+	return null
 
 func _exit_tree() -> void:
 	_set_cursor_grabbing(false)
@@ -143,13 +156,13 @@ func _update_hand_positions() -> void:
 	if rightHand != null and is_instance_valid(rightHand):
 		rightHandPosition = rightHand.global_position
 
-# Updates the card's scale based on its position in the isometric perspective
+# Updates the object's scale based on its position in the isometric perspective
 func update_perspective_scale() -> void:
-	if cardStates == states.inLeftHand or cardStates == states.inRightHand:
+	if objectState == states.inLeftHand or objectState == states.inRightHand:
 		scale = originalScale
 		return
 
-	# Project the card onto the table's far-to-near diagonal so both X and Y affect scale.
+	# Project the object onto the table's far-to-near diagonal so both X and Y affect scale.
 	var depth_vector = perspective_near_point - perspective_far_point
 	var depth_length_squared = depth_vector.length_squared()
 	var normalized_position = 0.5
@@ -158,23 +171,23 @@ func update_perspective_scale() -> void:
 		var offset_from_far = global_position - perspective_far_point
 		normalized_position = clamp(offset_from_far.dot(depth_vector) / depth_length_squared, 0.0, 1.0)
 	
-	# Interpolate between min and max scale
+	# Interpolate between min and max scale, then apply it on top of the authored transform scale.
 	var target_scale = lerp(perspective_min_scale, perspective_max_scale, normalized_position)
-	scale = Vector2.ONE * target_scale
+	scale = originalScale * target_scale
 
 func update_drag_presentation(delta: float) -> void:
 	var blend = min(1.0, drag_hover_speed * delta)
-	var target_card_offset = drag_hover_offset if dragging else Vector2.ZERO
+	var target_object_offset = drag_hover_offset if dragging else Vector2.ZERO
 	var can_show_drop_marker = (dragging or outOfBoundsDropActive) and hasTableDropTarget
 	var target_shadow_alpha = (shadow_max_alpha * _shadow_alpha_scale()) if can_show_drop_marker else 0.0
 	var target_shadow_position = Vector2.ZERO
 
 	if can_show_drop_marker:
 		var drop_local = to_local(tableDropPosition)
-		# Keep shadow horizontally aligned with the card while still using table depth for Y.
-		target_shadow_position = Vector2(paperType.position.x + shadow_offset.x, drop_local.y + (shadow_offset.y * _shadow_depth_scale()))
+		# Keep shadow horizontally aligned with the object while still using table depth for Y.
+		target_shadow_position = Vector2(objectSprite.position.x + shadow_offset.x, drop_local.y + (shadow_offset.y * _shadow_depth_scale()))
 
-	paperType.position = paperType.position.lerp(target_card_offset, blend)
+	objectSprite.position = objectSprite.position.lerp(target_object_offset, blend)
 	if can_show_drop_marker:
 		shadowSprite.position = target_shadow_position
 	else:
@@ -340,7 +353,7 @@ func _setup_shadow_clip_material() -> void:
 	if shadowClipShader == null:
 		shadowClipShader = load(SHADOW_TABLE_CLIP_SHADER_PATH)
 		if shadowClipShader == null:
-			push_error("Card.gd: Failed to load shadow clip shader at %s" % SHADOW_TABLE_CLIP_SHADER_PATH)
+			push_error("GameObject.gd: Failed to load shadow clip shader at %s" % SHADOW_TABLE_CLIP_SHADER_PATH)
 			return
 
 	if shadowSprite.material is ShaderMaterial and (shadowSprite.material as ShaderMaterial).shader == shadowClipShader:
@@ -417,19 +430,19 @@ func _is_hand_anchor_active(hand_anchor: Node2D, hand_position: Vector2) -> bool
 	return _is_world_position_on_screen(hand_position, hand_drop_screen_margin)
 
 func _force_drop_from_hand() -> void:
-	var was_in_hand = thisCardInRightHand or thisCardInLeftHand
-	if thisCardInRightHand:
-		CardHandler.release_hand(CardHandler.HAND_RIGHT)
-		thisCardInRightHand = false
+	var was_in_hand = thisObjectInRightHand or thisObjectInLeftHand
+	if thisObjectInRightHand:
+		_release_hand(HAND_RIGHT)
+		thisObjectInRightHand = false
 
-	if thisCardInLeftHand:
-		CardHandler.release_hand(CardHandler.HAND_LEFT)
-		thisCardInLeftHand = false
+	if thisObjectInLeftHand:
+		_release_hand(HAND_LEFT)
+		thisObjectInLeftHand = false
 
 	if was_in_hand:
 		play_hand_drop_sound()
 
-	cardStates = states.onTable
+	objectState = states.onTable
 	tableSlideVelocity = Vector2.ZERO
 	tableDropPosition = _aligned_drop_target_on_table(global_position)
 	hasTableDropTarget = true
@@ -448,9 +461,89 @@ func _on_placement_tween_finished() -> void:
 	hasPlacementTarget = false
 
 func _sync_shadow_texture() -> void:
-	shadowSprite.texture = paperType.texture
+	shadowSprite.texture = objectSprite.texture
 
-# Tracks if the mouse is over the card
+
+func _rebuild_object_collision_shape() -> void:
+	if object_collision_polygon == null:
+		return
+
+	if !use_sprite_outline_collision or objectSprite == null or objectSprite.texture == null:
+		_use_box_polygon_collision(Vector2i(64, 64))
+		return
+
+	var texture_image = objectSprite.texture.get_image()
+	if texture_image == null or texture_image.is_empty():
+		_use_box_polygon_collision(Vector2i(64, 64))
+		return
+
+	var bitmap := BitMap.new()
+	bitmap.create_from_image_alpha(texture_image, collision_alpha_threshold)
+	var image_size := texture_image.get_size()
+	var polygons = bitmap.opaque_to_polygons(Rect2(Vector2.ZERO, image_size), collision_polygon_simplify)
+	if polygons.is_empty():
+		_use_box_polygon_collision(image_size)
+		return
+
+	var best_polygon: PackedVector2Array = polygons[0]
+	var best_area := _polygon_area_abs(best_polygon)
+	for candidate in polygons:
+		var candidate_area := _polygon_area_abs(candidate)
+		if candidate_area > best_area:
+			best_area = candidate_area
+			best_polygon = candidate
+
+	# CollisionPolygon2D decomposes concave polygons into convex pieces.
+	# Some noisy outlines fail decomposition, so we feed a convex hull for stability.
+	best_polygon = Geometry2D.convex_hull(best_polygon)
+	if best_polygon.size() < 3:
+		_use_box_polygon_collision(image_size)
+		return
+
+	object_collision_polygon.polygon = _to_sprite_local_polygon(best_polygon, image_size)
+	object_collision_polygon.position = objectSprite.position
+	object_collision_polygon.scale = objectSprite.scale
+	object_collision_polygon.disabled = false
+
+
+func _to_sprite_local_polygon(polygon: PackedVector2Array, image_size: Vector2i) -> PackedVector2Array:
+	var local_polygon := PackedVector2Array()
+	var pivot = Vector2(image_size) * 0.5 if objectSprite.centered else Vector2.ZERO
+	for point in polygon:
+		local_polygon.append((point - pivot) + objectSprite.offset)
+	return local_polygon
+
+
+func _polygon_area_abs(polygon: PackedVector2Array) -> float:
+	if polygon.size() < 3:
+		return 0.0
+
+	var double_area := 0.0
+	for i in range(polygon.size()):
+		var a = polygon[i]
+		var b = polygon[(i + 1) % polygon.size()]
+		double_area += (a.x * b.y) - (b.x * a.y)
+
+	return absf(double_area) * 0.5
+
+
+func _use_box_polygon_collision(image_size: Vector2i) -> void:
+	if object_collision_polygon == null:
+		return
+
+	var rect_polygon := PackedVector2Array([
+		Vector2(0.0, 0.0),
+		Vector2(float(image_size.x), 0.0),
+		Vector2(float(image_size.x), float(image_size.y)),
+		Vector2(0.0, float(image_size.y))
+	])
+
+	object_collision_polygon.polygon = _to_sprite_local_polygon(rect_polygon, image_size)
+	object_collision_polygon.position = objectSprite.position
+	object_collision_polygon.scale = objectSprite.scale
+	object_collision_polygon.disabled = false
+
+# Tracks if the mouse is over the object
 func _on_area_2d_mouse_shape_entered(_shape_idx: int) -> void:
 	isOver = true
 	_set_cursor_hovering(true)
@@ -460,13 +553,13 @@ func _on_area_2d_mouse_shape_exited(_shape_idx: int) -> void:
 
 func _physics_process(delta: float) -> void:
 	releasedDragThisFrame = false
-	var previous_card_position = global_position
+	var previous_object_position = global_position
 	mouseDifference = mousePosition - get_global_mouse_position()
 	_update_hand_positions()
 	drag_handler()
 
 	if delta > 0.0:
-		dragVelocity = (global_position - previous_card_position) / delta
+		dragVelocity = (global_position - previous_object_position) / delta
 
 	if releasedDragThisFrame:
 		_start_table_slide_from_release()
@@ -487,12 +580,34 @@ func _process(_delta: float) -> void:
 	if placementTween != null and placementTween.is_valid():
 		return
 
-	if cardStates == states.inRightHand and thisCardInRightHand:
+	if objectState == states.inRightHand and thisObjectInRightHand:
 		_update_hand_positions()
 		global_position = rightHandPosition
-	elif cardStates == states.inLeftHand and thisCardInLeftHand:
+	elif objectState == states.inLeftHand and thisObjectInLeftHand:
 		_update_hand_positions()
 		global_position = leftHandPosition
+
+
+func _next_object_z_index() -> int:
+	if object_handler != null and object_handler.has_method("next_object_z_index"):
+		return object_handler.next_object_z_index()
+	return z_index + 1
+
+
+func _is_hand_available(slot: StringName, currently_holding: bool = false) -> bool:
+	if object_handler != null and object_handler.has_method("is_hand_available"):
+		return object_handler.is_hand_available(slot, currently_holding)
+	return currently_holding
+
+
+func _claim_hand(slot: StringName) -> void:
+	if object_handler != null and object_handler.has_method("claim_hand"):
+		object_handler.claim_hand(slot)
+
+
+func _release_hand(slot: StringName) -> void:
+	if object_handler != null and object_handler.has_method("release_hand"):
+		object_handler.release_hand(slot)
 
 func _slide_stop_speed() -> float:
 	# Higher friction raises the speed threshold where slide is considered settled.
@@ -540,10 +655,7 @@ func _landing_slide_transfer() -> float:
 	# Converts return impact into table slide momentum.
 	return clamp(0.4 + (_get_bounce() * 0.4), 0.4, 1.0)
 
-func _uses_paper_test_random_texture() -> bool:
-	if capabilities_profile == null:
-		return false
-	return capabilities_profile.use_paper_test_random_texture
+
 
 func _can_drag_item() -> bool:
 	if capabilities_profile == null:
@@ -600,7 +712,7 @@ func _get_ballistic_coefficient() -> float:
 		return 0.75
 	return physics_profile.ballistic_coefficient
 
-# Moves the card to the position of the mouse and handles if the card is being dragged
+# Moves the object to the position of the mouse and handles if it is being dragged
 func drag_handler():
 	if !_can_drag_item():
 		if dragging:
@@ -621,7 +733,7 @@ func drag_handler():
 		_set_cursor_grabbing(true)
 		tableDropPosition = previousPosition
 		hasTableDropTarget = true
-		z_index = CardHandler.next_card_z_index()
+		z_index = _next_object_z_index()
 		_refresh_floating_state_from_overlaps()
 		play_pickup_sound()
 	elif dragging and Input.is_action_just_released("leftClick"):
@@ -651,11 +763,11 @@ func _start_table_slide_from_release() -> void:
 		tableSlideVelocity = Vector2.ZERO
 		return
 
-	if cardFloating == floating.overNothing:
+	if objectFloating == floating.overNothing:
 		_start_out_of_bounds_drop()
 		return
 
-	if cardFloating != floating.overTable:
+	if objectFloating != floating.overTable:
 		tableSlideVelocity = Vector2.ZERO
 		return
 
@@ -752,7 +864,7 @@ func _apply_table_slide(delta: float) -> void:
 	if dragging or outOfBoundsDropActive or tableSlideVelocity == Vector2.ZERO:
 		return
 
-	if cardStates != states.onTable and cardFloating != floating.overTable and cardFloating != floating.overNothing:
+	if objectState != states.onTable and objectFloating != floating.overTable and objectFloating != floating.overNothing:
 		tableSlideVelocity = Vector2.ZERO
 		return
 
@@ -833,7 +945,7 @@ func _set_slide_velocity(new_velocity: Vector2) -> void:
 	previousPosition = global_position
 
 func _can_participate_in_object_bounce() -> bool:
-	return bounce_objects and _can_bounce_objects() and _can_receive_object_bounce() and !dragging and !outOfBoundsDropActive and cardStates == states.onTable and _can_slide_on_table()
+	return bounce_objects and _can_bounce_objects() and _can_receive_object_bounce() and !dragging and !outOfBoundsDropActive and objectState == states.onTable and _can_slide_on_table()
 
 func _handle_object_slide_bounce(other_area: Area2D) -> void:
 	var bounce_amount = _get_bounce()
@@ -843,26 +955,26 @@ func _handle_object_slide_bounce(other_area: Area2D) -> void:
 	if other_area == null:
 		return
 
-	var other_card = other_area.get_parent()
-	if other_card == null or other_card == self:
+	var other_object = other_area.get_parent()
+	if other_object == null or other_object == self:
 		return
 
-	if !other_card.has_method("_can_participate_in_object_bounce"):
+	if !other_object.has_method("_can_participate_in_object_bounce"):
 		return
 
 	var self_can_bounce = _can_participate_in_object_bounce()
-	var other_can_bounce = bool(other_card.call("_can_participate_in_object_bounce"))
+	var other_can_bounce = bool(other_object.call("_can_participate_in_object_bounce"))
 	if !self_can_bounce:
 		return
 
-	var other_node = other_card as Node2D
+	var other_node = other_object as Node2D
 	if other_node == null:
 		return
 
 	var v1 = _get_slide_velocity()
 	var v2: Vector2 = Vector2.ZERO
-	if other_card.has_method("_get_slide_velocity"):
-		v2 = other_card.call("_get_slide_velocity")
+	if other_object.has_method("_get_slide_velocity"):
+		v2 = other_object.call("_get_slide_velocity")
 
 	if !other_can_bounce:
 		if v1 == Vector2.ZERO:
@@ -877,8 +989,8 @@ func _handle_object_slide_bounce(other_area: Area2D) -> void:
 		_set_slide_velocity(v1.bounce(static_normal.normalized()) * bounce_amount)
 		return
 
-	# Process each collision once so both cards don't apply the same impulse twice.
-	if get_instance_id() > other_card.get_instance_id():
+	# Process each collision once so both objects don't apply the same impulse twice.
+	if get_instance_id() > other_object.get_instance_id():
 		return
 
 	var normal = other_node.global_position - global_position
@@ -896,9 +1008,9 @@ func _handle_object_slide_bounce(other_area: Area2D) -> void:
 		return
 
 	var m1 = _get_mass()
-	var m2 = float(other_card.call("_get_mass"))
+	var m2 = float(other_object.call("_get_mass"))
 	var restitution_a = _get_object_restitution()
-	var restitution_b = float(other_card.call("_get_object_restitution"))
+	var restitution_b = float(other_object.call("_get_object_restitution"))
 	var restitution = sqrt(max(0.0, restitution_a * restitution_b))
 
 	var impulse = -(1.0 + restitution) * velocity_along_normal
@@ -908,113 +1020,113 @@ func _handle_object_slide_bounce(other_area: Area2D) -> void:
 	var new_v2 = v2 + (impulse / m2) * normal
 
 	_set_slide_velocity(new_v1)
-	other_card.call("_set_slide_velocity", new_v2)
+	other_object.call("_set_slide_velocity", new_v2)
 
-# Handles what position the card is in before it is placed down by the player
+# Handles what position the object is in before it is placed down by the player
 func hand_handler():
 	if dragging:
 		return
 
 	if !_can_be_placed_in_hands():
-		cardStates = states.onTable
+		objectState = states.onTable
 		return
 
 	# State transitions are only evaluated on release frames so hands cannot auto-capture.
 	if releasedDragThisFrame:
-		if cardFloating == floating.overRightHand:
-			cardStates = states.inRightHand
+		if objectFloating == floating.overRightHand:
+			objectState = states.inRightHand
 			play_hand_pickup_sound()
-		elif cardFloating == floating.overLeftHand:
-			cardStates = states.inLeftHand
+		elif objectFloating == floating.overLeftHand:
+			objectState = states.inLeftHand
 			play_hand_pickup_sound()
 		else:
-			if (cardStates == states.inRightHand or cardStates == states.inLeftHand) and cardFloating == floating.overTable:
+			if (objectState == states.inRightHand or objectState == states.inLeftHand) and objectFloating == floating.overTable:
 				play_hand_drop_sound()
-			cardStates = states.onTable
+			objectState = states.onTable
 		return
 
 	# Between releases, preserve held state if already claimed.
-	if cardStates == states.inRightHand and thisCardInRightHand:
+	if objectState == states.inRightHand and thisObjectInRightHand:
 		return
-	if cardStates == states.inLeftHand and thisCardInLeftHand:
+	if objectState == states.inLeftHand and thisObjectInLeftHand:
 		return
 
-	if (cardStates == states.inRightHand or cardStates == states.inLeftHand) and cardFloating == floating.overTable:
+	if (objectState == states.inRightHand or objectState == states.inLeftHand) and objectFloating == floating.overTable:
 		play_hand_drop_sound()
-	cardStates = states.onTable
+	objectState = states.onTable
 
-# Handles where the card will be placed when let go of by the player
+# Handles where the object will be placed when let go of by the player
 func placement_handler():
 	if dragging:
 		return
 
-	if cardStates == states.inRightHand and !_is_hand_anchor_active(rightHand, rightHandPosition):
+	if objectState == states.inRightHand and !_is_hand_anchor_active(rightHand, rightHandPosition):
 		_force_drop_from_hand()
-	elif cardStates == states.inLeftHand and !_is_hand_anchor_active(leftHand, leftHandPosition):
+	elif objectState == states.inLeftHand and !_is_hand_anchor_active(leftHand, leftHandPosition):
 		_force_drop_from_hand()
 
 	if outOfBoundsDropActive:
 		_stop_placement_tween()
 		return
 
-	if tableSlideVelocity != Vector2.ZERO and cardStates == states.onTable:
+	if tableSlideVelocity != Vector2.ZERO and objectState == states.onTable:
 		_stop_placement_tween()
 		return
 
-	if cardStates == states.inRightHand:
+	if objectState == states.inRightHand:
 		tableSlideVelocity = Vector2.ZERO
 		z_index = _clamped_in_hand_z_index()
 		if placementTween != null and placementTween.is_valid():
 			if !hasPlacementTarget or !placementTargetPosition.is_equal_approx(rightHandPosition):
 				animate_to_position(rightHandPosition)
-		elif thisCardInRightHand:
+		elif thisObjectInRightHand:
 			follow_in_hand_target(rightHandPosition)
 		else:
 			animate_to_position(rightHandPosition)
-		CardHandler.claim_hand(CardHandler.HAND_RIGHT)
-		thisCardInRightHand = true
-	elif cardStates == states.inLeftHand:
+		_claim_hand(HAND_RIGHT)
+		thisObjectInRightHand = true
+	elif objectState == states.inLeftHand:
 		tableSlideVelocity = Vector2.ZERO
 		z_index = _clamped_in_hand_z_index()
 		if placementTween != null and placementTween.is_valid():
 			if !hasPlacementTarget or !placementTargetPosition.is_equal_approx(leftHandPosition):
 				animate_to_position(leftHandPosition)
-		elif thisCardInLeftHand:
+		elif thisObjectInLeftHand:
 			follow_in_hand_target(leftHandPosition)
 		else:
 			animate_to_position(leftHandPosition)
-		CardHandler.claim_hand(CardHandler.HAND_LEFT)
-		thisCardInLeftHand = true
-	elif cardStates == states.onTable and hasTableDropTarget:
+		_claim_hand(HAND_LEFT)
+		thisObjectInLeftHand = true
+	elif objectState == states.onTable and hasTableDropTarget:
 		animate_to_position(tableDropPosition)
 		previousPosition = tableDropPosition
-	elif cardFloating == floating.overTable:
+	elif objectFloating == floating.overTable:
 		_stop_placement_tween()
 		previousPosition = global_position
-	elif cardFloating == floating.overNothing:
+	elif objectFloating == floating.overNothing:
 		animate_to_position(previousPosition)
 	
-	if cardStates != states.inRightHand and thisCardInRightHand:
-		CardHandler.release_hand(CardHandler.HAND_RIGHT)
-		thisCardInRightHand = false
+	if objectState != states.inRightHand and thisObjectInRightHand:
+		_release_hand(HAND_RIGHT)
+		thisObjectInRightHand = false
 		z_index = defaultZIndex
 	
-	if cardStates != states.inLeftHand and thisCardInLeftHand:
-		CardHandler.release_hand(CardHandler.HAND_LEFT)
-		thisCardInLeftHand = false
+	if objectState != states.inLeftHand and thisObjectInLeftHand:
+		_release_hand(HAND_LEFT)
+		thisObjectInLeftHand = false
 		z_index = defaultZIndex
 
-# Checks what layer the card has collided with and changes the state to the appropriate position
+# Checks what layer the object has collided with and changes the state to the appropriate position
 func _on_area_2d_area_entered(area: Area2D) -> void:
 	if area.get_collision_layer_value(1):
 		lastTableArea = area
 		_update_shadow_clip_polygon()
 
-	# Changes the z_index of the most recently set card to the top if it collides with another card
+	# Changes the z_index of the most recently set object to the top if it collides with another object
 	if area.get_collision_layer_value(4):
-		cardsTouching += 1
+		objectsTouching += 1
 		if dragging and !isColliding:
-			z_index = CardHandler.next_card_z_index()
+			z_index = _next_object_z_index()
 
 		if !dragging and !outOfBoundsDropActive:
 			_handle_object_slide_bounce(area)
@@ -1024,8 +1136,8 @@ func _on_area_2d_area_entered(area: Area2D) -> void:
 
 func _on_area_2d_area_exited(area: Area2D) -> void:
 	if area.get_collision_layer_value(4):
-		cardsTouching -= 1
-		if cardsTouching == 0:
+		objectsTouching -= 1
+		if objectsTouching == 0:
 			isColliding = false
 
 
@@ -1054,23 +1166,23 @@ func play_hand_drop_sound() -> void:
 
 func _refresh_floating_state_from_overlaps() -> void:
 	var overlapping_areas: Array[Area2D] = $Area2D.get_overlapping_areas()
-	cardFloating = floating.overNothing
+	objectFloating = floating.overNothing
 	var can_place_in_hands = _can_be_placed_in_hands()
 
 	# Priority is explicit so overlap ordering cannot cause random outcomes.
 	if can_place_in_hands:
 		for area in overlapping_areas:
-			if area.get_collision_layer_value(3) and CardHandler.is_hand_available(CardHandler.HAND_RIGHT, thisCardInRightHand):
-				cardFloating = floating.overRightHand
+			if area.get_collision_layer_value(3) and _is_hand_available(HAND_RIGHT, thisObjectInRightHand):
+				objectFloating = floating.overRightHand
 				return
 
 	if can_place_in_hands:
 		for area in overlapping_areas:
-			if area.get_collision_layer_value(2) and CardHandler.is_hand_available(CardHandler.HAND_LEFT, thisCardInLeftHand):
-				cardFloating = floating.overLeftHand
+			if area.get_collision_layer_value(2) and _is_hand_available(HAND_LEFT, thisObjectInLeftHand):
+				objectFloating = floating.overLeftHand
 				return
 
 	for area in overlapping_areas:
 		if area.get_collision_layer_value(1):
-			cardFloating = floating.overTable
+			objectFloating = floating.overTable
 			return

@@ -1,5 +1,5 @@
 extends Resource
-class_name CardPhysicsProfile
+class_name ObjectPhysicsProfile
 
 @export_range(0.0, 1.0, 0.01) var friction: float = 0.5
 @export_range(0.0, 2.0, 0.05) var bounce: float = 0.7

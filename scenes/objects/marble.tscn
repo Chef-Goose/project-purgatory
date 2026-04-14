@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://brb5e2dwjgdem"]
+
+[ext_resource type="PackedScene" uid="uid://bs8h3p8q8bnge" path="res://scenes/objects/game_object.tscn" id="1_u4028"]
+[ext_resource type="Texture2D" uid="uid://cdnw4u6kcvfg1" path="res://assets/art/objects/marbleplaceholder.png" id="2_marble"]
+
+[node name="game_object" unique_id=1909657811 instance=ExtResource("1_u4028")]
+
+[node name="object" parent="." index="1" unique_id=505279869]
+texture = ExtResource("2_marble")

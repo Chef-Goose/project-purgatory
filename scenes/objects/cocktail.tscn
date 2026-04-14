@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://d023sacoglnm8"]
+
+[ext_resource type="PackedScene" uid="uid://bs8h3p8q8bnge" path="res://scenes/objects/game_object.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://djvs3silij8yi" path="res://assets/art/objects/cocktail-martini-upside-down-cake-juice-vodka-cocktail-afe6e05b6c0acae89e81edf96a47ad6c.png" id="2_tex"]
+
+[node name="Cocktail" unique_id=402021328 instance=ExtResource("1_base")]
+scale = Vector2(0.3, 0.3)
+
+[node name="Shadow" parent="." index="0" unique_id=79335273]
+texture = ExtResource("2_tex")
+
+[node name="object" parent="." index="1" unique_id=505279869]
+texture = ExtResource("2_tex")
