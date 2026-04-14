@@ -126,6 +126,10 @@ func _ready() -> void:
 	call_deferred("_deferred_refresh_table_clip")
 	_setup_audio_player()
 
+func _exit_tree() -> void:
+	_set_cursor_grabbing(false)
+	_set_cursor_hovering(false)
+
 func _setup_audio_player() -> void:
 	# Create an audio player node if it doesn't exist
 	if audioPlayer == null:
@@ -449,8 +453,10 @@ func _sync_shadow_texture() -> void:
 # Tracks if the mouse is over the card
 func _on_area_2d_mouse_shape_entered(_shape_idx: int) -> void:
 	isOver = true
+	_set_cursor_hovering(true)
 func _on_area_2d_mouse_shape_exited(_shape_idx: int) -> void:
 	isOver = false
+	_set_cursor_hovering(false)
 
 func _physics_process(delta: float) -> void:
 	releasedDragThisFrame = false
@@ -597,6 +603,8 @@ func _get_ballistic_coefficient() -> float:
 # Moves the card to the position of the mouse and handles if the card is being dragged
 func drag_handler():
 	if !_can_drag_item():
+		if dragging:
+			_set_cursor_grabbing(false)
 		dragging = false
 		return
 
@@ -610,6 +618,7 @@ func drag_handler():
 		outOfBoundsDropActive = false
 		outOfBoundsDropVelocity = Vector2.ZERO
 		dragging = true
+		_set_cursor_grabbing(true)
 		tableDropPosition = previousPosition
 		hasTableDropTarget = true
 		z_index = CardHandler.next_card_z_index()
@@ -617,8 +626,25 @@ func drag_handler():
 		play_pickup_sound()
 	elif dragging and Input.is_action_just_released("leftClick"):
 		dragging = false
+		_set_cursor_grabbing(false)
 		releasedDragThisFrame = true
 		_refresh_floating_state_from_overlaps()
+
+func _set_cursor_grabbing(is_grabbing: bool) -> void:
+	var game_cursor = get_node_or_null("/root/GameCursor")
+	if game_cursor == null:
+		return
+
+	if game_cursor.has_method("set_grabbing"):
+		game_cursor.call("set_grabbing", is_grabbing, self)
+
+func _set_cursor_hovering(is_hovering: bool) -> void:
+	var game_cursor = get_node_or_null("/root/GameCursor")
+	if game_cursor == null:
+		return
+
+	if game_cursor.has_method("set_hovering"):
+		game_cursor.call("set_hovering", is_hovering, self)
 
 func _start_table_slide_from_release() -> void:
 	if !_can_slide_on_table():

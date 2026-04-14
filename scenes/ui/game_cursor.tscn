@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://bsoel73560k40"]
+
+[ext_resource type="Script" uid="uid://c7gnltua7bpp2" path="res://scripts/ui/game_cursor.gd" id="1_u7l8g"]
+
+[node name="GameCursor" type="CanvasLayer" unique_id=893177831]
+layer = 100
+script = ExtResource("1_u7l8g")
+hover_collision_layers = PackedInt32Array()
+
+[node name="CursorSprite" type="Sprite2D" parent="." unique_id=674717597]
