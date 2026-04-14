@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cc67sjfxr5h6a"
-path="res://.godot/imported/cursorplaceholderhover.png-d52c70c08da10df0e93c4b19ffec6ff9.ctex"
+uid="uid://cftajt1qmdgpw"
+path="res://.godot/imported/cursorplaceholderclick.png-da8e769efda18f512b80c21acd8135c7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/cursor/cursorplaceholderhover.png"
-dest_files=["res://.godot/imported/cursorplaceholderhover.png-d52c70c08da10df0e93c4b19ffec6ff9.ctex"]
+source_file="res://assets/art/cursor/cursorplaceholderclick.png"
+dest_files=["res://.godot/imported/cursorplaceholderclick.png-da8e769efda18f512b80c21acd8135c7.ctex"]
 
 [params]
 
