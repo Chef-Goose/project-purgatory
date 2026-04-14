@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ObjectPhysicsProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/object_physics_profile.gd" id="1_8n1v0"]
+
+[resource]
+script = ExtResource("1_8n1v0")
+friction = 0.2
+bounce = 1.15
+weight = 0.35
+ballistic_coefficient = 1.2

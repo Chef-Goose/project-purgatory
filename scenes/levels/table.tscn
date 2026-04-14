@@ -1,12 +1,16 @@
 [gd_scene format=3 uid="uid://2xr8etpa0yjs"]
 
 [ext_resource type="Texture2D" uid="uid://fb8v45th2i8a" path="res://assets/art/environments/Desk_RD1.png" id="1_3yje6"]
-[ext_resource type="PackedScene" uid="uid://cnvo26buk0q6t" path="res://scenes/levels/card.tscn" id="2_3yje6"]
 [ext_resource type="PackedScene" uid="uid://fl6pbuqy3msu" path="res://scenes/ui/music.tscn" id="2_dj1d4"]
 [ext_resource type="Script" uid="uid://btugaslu0kd8w" path="res://scripts/core/table_camera_controller.gd" id="4_e4jfb"]
 [ext_resource type="PackedScene" path="res://scenes/ui/camera_return_button.tscn" id="5_634sb"]
 [ext_resource type="Script" uid="uid://cmpll84e3yxne" path="res://scripts/core/table_camera_click_zone.gd" id="5_l70u8"]
-[ext_resource type="PackedScene" uid="uid://xw0q526hvxl2" path="res://scenes/levels/table_hands.tscn" id="7_hf3q9"]
+[ext_resource type="PackedScene" uid="uid://brb5e2dwjgdem" path="res://scenes/objects/marble.tscn" id="7_dllcf"]
+[ext_resource type="PackedScene" uid="uid://xw0q526hvxl2" path="res://scenes/ui/table_hands.tscn" id="7_hf3q9"]
+[ext_resource type="PackedScene" path="res://scenes/objects/cocktail.tscn" id="8_hc0a1"]
+[ext_resource type="PackedScene" path="res://scenes/objects/root_beer.tscn" id="8_jmqxf"]
+[ext_resource type="PackedScene" path="res://scenes/objects/mallard_duck.tscn" id="9_6oaw3"]
+[ext_resource type="PackedScene" path="res://scenes/objects/rubber_duck.tscn" id="9_hc0a1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7n5db"]
 size = Vector2(1492, 928)
@@ -97,18 +101,17 @@ position = Vector2(-623, -424)
 [node name="TargetLookClick" type="Marker2D" parent="CameraZones/HandsLook" unique_id=1895829327]
 position = Vector2(-360, -282)
 
-[node name="cardA" parent="." unique_id=396578719 node_paths=PackedStringArray("leftHand", "rightHand") instance=ExtResource("2_3yje6")]
-position = Vector2(-158, -186)
-leftHand = NodePath("../Camera2D/HandsUI/leftHandArea")
-rightHand = NodePath("../Camera2D/HandsUI/rightHandArea")
+[node name="game_object" parent="." unique_id=1909657811 instance=ExtResource("7_dllcf")]
+position = Vector2(-40, -139)
 
-[node name="cardB" parent="." unique_id=1909657811 node_paths=PackedStringArray("leftHand", "rightHand") instance=ExtResource("2_3yje6")]
-position = Vector2(207, -73)
-leftHand = NodePath("../Camera2D/HandsUI/leftHandArea")
-rightHand = NodePath("../Camera2D/HandsUI/rightHandArea")
-shadow_fade_speed = 10.0
+[node name="Cocktail" parent="." unique_id=897456303 instance=ExtResource("8_hc0a1")]
+position = Vector2(-255, -304)
 
-[node name="cardC" parent="." unique_id=318108419 node_paths=PackedStringArray("leftHand", "rightHand") instance=ExtResource("2_3yje6")]
-position = Vector2(33, -134)
-leftHand = NodePath("../Camera2D/HandsUI/leftHandArea")
-rightHand = NodePath("../Camera2D/HandsUI/rightHandArea")
+[node name="MallardDuck" parent="." unique_id=2097693966 instance=ExtResource("9_6oaw3")]
+position = Vector2(232, -93)
+
+[node name="RubberDuck" parent="." unique_id=1882350937 instance=ExtResource("9_hc0a1")]
+position = Vector2(-560, -269)
+
+[node name="RootBeer" parent="." unique_id=1856310111 instance=ExtResource("8_jmqxf")]
+position = Vector2(-407, -322)
