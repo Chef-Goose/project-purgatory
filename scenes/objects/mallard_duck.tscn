@@ -1,10 +1,12 @@
 [gd_scene format=3 uid="uid://cu77eiqb75ldp"]
 
 [ext_resource type="PackedScene" uid="uid://bs8h3p8q8bnge" path="res://scenes/objects/game_object.tscn" id="1_base"]
+[ext_resource type="AudioStream" uid="uid://ckjo565qpppa7" path="res://assets/audio/realduck.wav" id="2_gll1u"]
 [ext_resource type="Texture2D" uid="uid://dsyy2iylnyudk" path="res://assets/art/objects/duck-mallard-bird-goose-duck-png-image-2e3df7299a762cdeec6a6336f224af79.png" id="2_tex"]
 
 [node name="MallardDuck" unique_id=695443448 instance=ExtResource("1_base")]
 scale = Vector2(0.09, 0.09)
+sound_pickup = ExtResource("2_gll1u")
 
 [node name="Shadow" parent="." index="0" unique_id=79335273]
 texture = ExtResource("2_tex")

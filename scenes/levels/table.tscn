@@ -7,10 +7,10 @@
 [ext_resource type="Script" uid="uid://cmpll84e3yxne" path="res://scripts/core/table_camera_click_zone.gd" id="5_l70u8"]
 [ext_resource type="PackedScene" uid="uid://brb5e2dwjgdem" path="res://scenes/objects/marble.tscn" id="7_dllcf"]
 [ext_resource type="PackedScene" uid="uid://xw0q526hvxl2" path="res://scenes/ui/table_hands.tscn" id="7_hf3q9"]
-[ext_resource type="PackedScene" path="res://scenes/objects/cocktail.tscn" id="8_hc0a1"]
-[ext_resource type="PackedScene" path="res://scenes/objects/root_beer.tscn" id="8_jmqxf"]
-[ext_resource type="PackedScene" path="res://scenes/objects/mallard_duck.tscn" id="9_6oaw3"]
-[ext_resource type="PackedScene" path="res://scenes/objects/rubber_duck.tscn" id="9_hc0a1"]
+[ext_resource type="PackedScene" uid="uid://d023sacoglnm8" path="res://scenes/objects/cocktail.tscn" id="8_hc0a1"]
+[ext_resource type="PackedScene" uid="uid://bhj68woo2xi24" path="res://scenes/objects/root_beer.tscn" id="8_jmqxf"]
+[ext_resource type="PackedScene" uid="uid://cu77eiqb75ldp" path="res://scenes/objects/mallard_duck.tscn" id="9_6oaw3"]
+[ext_resource type="PackedScene" uid="uid://4oh7tolg3w1p" path="res://scenes/objects/rubber_duck.tscn" id="9_hc0a1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7n5db"]
 size = Vector2(1492, 928)
@@ -112,6 +112,10 @@ position = Vector2(232, -93)
 
 [node name="RubberDuck" parent="." unique_id=1882350937 instance=ExtResource("9_hc0a1")]
 position = Vector2(-560, -269)
+drag_hover_offset = Vector2(0, -15)
+shadow_offset = Vector2(0, 20)
 
 [node name="RootBeer" parent="." unique_id=1856310111 instance=ExtResource("8_jmqxf")]
 position = Vector2(-407, -322)
+drag_hover_offset = Vector2(0, -15)
+shadow_offset = Vector2(0, 20)

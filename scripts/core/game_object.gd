@@ -43,10 +43,12 @@ var rightHand: Node2D = null
 
 @export_category("Audio")
 @export var sound_pickup: AudioStream = null  # Sound when picking up from table
+@export var sound_release: AudioStream = null  # Sound when releasing after dragging
 @export var sound_drop: AudioStream = null  # Sound when dropping on table
 @export var sound_slide: AudioStream = null  # Sound while sliding on table
 @export var sound_hand_pickup: AudioStream = null  # Sound when picking up into a hand
 @export var sound_hand_drop: AudioStream = null  # Sound when dropping from a hand
+@export_range(1, 16, 1) var audio_polyphony: int = 4
 
 var mousePosition : Vector2 = Vector2.ZERO
 var leftHandPosition: Vector2 = Vector2.ZERO
@@ -80,6 +82,8 @@ var defaultZIndex: int = 0
 
 # Audio playback
 var audioPlayer: AudioStreamPlayer
+var audioPlayers: Array[AudioStreamPlayer] = []
+var audioPlayerCursor: int = 0
 var lastSlideVelocity: Vector2 = Vector2.ZERO
 var wasSliding: bool = false
 
@@ -144,10 +148,33 @@ func _exit_tree() -> void:
 	_set_cursor_hovering(false)
 
 func _setup_audio_player() -> void:
-	# Create an audio player node if it doesn't exist
+	# Build a small player pool so short SFX can overlap.
 	if audioPlayer == null:
 		audioPlayer = AudioStreamPlayer.new()
 		add_child(audioPlayer)
+
+	audioPlayers.clear()
+	audioPlayers.append(audioPlayer)
+	var pool_size = maxi(1, audio_polyphony)
+	for i in range(1, pool_size):
+		var extra_player := AudioStreamPlayer.new()
+		add_child(extra_player)
+		audioPlayers.append(extra_player)
+	audioPlayerCursor = 0
+
+func _get_available_audio_player() -> AudioStreamPlayer:
+	if audioPlayers.is_empty():
+		return audioPlayer
+
+	for player in audioPlayers:
+		if player != null and is_instance_valid(player) and !player.playing:
+			return player
+
+	# If all are busy, reuse one in round-robin order.
+	audioPlayerCursor = audioPlayerCursor % audioPlayers.size()
+	var selected = audioPlayers[audioPlayerCursor]
+	audioPlayerCursor = (audioPlayerCursor + 1) % audioPlayers.size()
+	return selected
 
 func _update_hand_positions() -> void:
 	if leftHand != null and is_instance_valid(leftHand):
@@ -739,6 +766,7 @@ func drag_handler():
 	elif dragging and Input.is_action_just_released("leftClick"):
 		dragging = false
 		_set_cursor_grabbing(false)
+		play_release_sound()
 		releasedDragThisFrame = true
 		_refresh_floating_state_from_overlaps()
 
@@ -1143,13 +1171,19 @@ func _on_area_2d_area_exited(area: Area2D) -> void:
 
 # Audio playback helper methods
 func play_sound(audio_stream: AudioStream) -> void:
-	if audio_stream == null or audioPlayer == null:
+	if audio_stream == null:
 		return
-	audioPlayer.stream = audio_stream
-	audioPlayer.play()
+	var player = _get_available_audio_player()
+	if player == null or !is_instance_valid(player):
+		return
+	player.stream = audio_stream
+	player.play()
 
 func play_pickup_sound() -> void:
 	play_sound(sound_pickup)
+
+func play_release_sound() -> void:
+	play_sound(sound_release)
 
 func play_drop_sound() -> void:
 	play_sound(sound_drop)
