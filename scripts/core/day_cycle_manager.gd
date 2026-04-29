@@ -158,7 +158,7 @@ func _create_placeholder_characters() -> void:
 	char1.passport_info = {"occupation": "Account Manager", "age": "45"}
 	char1.portrait_set = sample_portrait_set
 	char1.default_dialogue_slot = "start"
-	char1.set_dialogue_slot_path("start", "res://scripts/dialogue/wayne_intro.dialogue")
+	char1.dialogue_resource_path = "res://scripts/dialogue/wayne_intro.dialogue"
 	
 	var char2 = CharacterData.new("Pepsi Man", "pepsi_man")
 	char2.description = "FUELED."
@@ -166,8 +166,7 @@ func _create_placeholder_characters() -> void:
 	char2.passport_info = {"occupation": "RUNNER/DELIVERER", "age": "62"}
 	char2.portrait_set = sample_portrait_set
 	char2.default_dialogue_slot = "start"
-	char2.set_dialogue_slot_path("start", "res://scripts/dialogue/pepsi_man_intro.dialogue")
-	char2.set_dialogue_slot_path("follow_up", "res://scripts/dialogue/pepsi_man_follow_up.dialogue")
+	char2.dialogue_resource_path = "res://scripts/dialogue/pepsi_man_intro.dialogue"
 	
 	var char3 = CharacterData.new("Derrick", "derrick")
 	char3.description = "Social media personality with unclear ethics."
@@ -175,7 +174,7 @@ func _create_placeholder_characters() -> void:
 	char3.passport_info = {"occupation": "Content Creator", "age": "28"}
 	char3.portrait_set = sample_portrait_set
 	char3.default_dialogue_slot = "start"
-	char3.set_dialogue_slot_path("start", "res://scripts/dialogue/derrick_intro.dialogue")
+	char3.dialogue_resource_path = "res://scripts/dialogue/derrick_intro.dialogue"
 	
 	all_available_characters = [char1, char2, char3]
 

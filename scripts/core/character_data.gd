@@ -96,6 +96,9 @@ func set_dialogue_slot_resource(slot_name: String, resource: DialogueResource, s
 
 
 func get_dialogue_resource_for_slot(slot_name: String = "") -> DialogueResource:
+	# Prefer a single dialogue resource per character. If a specific entry
+	# exists for a slot, keep supporting it for backwards compatibility,
+	# otherwise use the character's main dialogue resource or path.
 	var entry := get_dialogue_entry(slot_name)
 	if entry != null:
 		var resolved_resource := entry.resolve_dialogue_resource()
@@ -112,6 +115,11 @@ func get_dialogue_resource_for_slot(slot_name: String = "") -> DialogueResource:
 
 
 func get_dialogue_title_for_slot(slot_name: String = "") -> String:
+	var resolved_slot := slot_name.strip_edges()
+	# If a slot name was explicitly provided, use it as the title (e.g. "follow_up").
+	if not resolved_slot.is_empty():
+		return resolved_slot
+
 	var entry := get_dialogue_entry(slot_name)
 	if entry != null and not entry.start_from_title.is_empty():
 		return entry.start_from_title
@@ -120,3 +128,7 @@ func get_dialogue_title_for_slot(slot_name: String = "") -> String:
 		return intro_dialogue_title
 
 	return default_dialogue_slot
+
+
+func set_dialogue_path(resource_path: String) -> void:
+	dialogue_resource_path = resource_path

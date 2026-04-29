@@ -112,6 +112,17 @@ func start_for_character(character_data: CharacterData, dialogue_slot: String = 
 	if title_to_use.is_empty():
 		title_to_use = character_data.get_dialogue_title_for_slot(dialogue_slot)
 
+	# If the resolved title doesn't actually exist in the DialogueResource,
+	# fall back to the dialogue's first_title or start from the top to avoid
+	# assertions in the DialogueManager when a label is missing.
+	if dialogue_to_use != null and not title_to_use.is_empty():
+		if not dialogue_to_use.titles.has(title_to_use):
+			push_warning("Dialogue resource %s has no title '%s' for character '%s' (slot '%s'). Falling back to first title or start." % [str(dialogue_to_use), title_to_use, character_data.character_name, dialogue_slot])
+			if dialogue_to_use.first_title != null and not dialogue_to_use.first_title.is_empty():
+				title_to_use = dialogue_to_use.first_title
+			else:
+				title_to_use = ""
+
 	if character_portrait_sets.is_empty() and character_data.portrait_set != null:
 		character_portrait_sets = [character_data.portrait_set]
 
