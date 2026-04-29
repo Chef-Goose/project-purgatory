@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://d3phh3p36h7"]
+
+[ext_resource type="Script" uid="uid://qlm03yhmumwn" path="res://scripts/ui/lunch_break_manager.gd" id="1_lunch"]
+
+[node name="LunchBreak" type="Control" unique_id=623252301]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 599.0
+offset_top = 408.0
+offset_right = 599.0
+offset_bottom = 408.0
+script = ExtResource("1_lunch")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1825631161]
+layout_mode = 1
+color = Color(0.1, 0.15, 0.2, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1082107719]
+layout_mode = 1
+offset_left = -300.0
+offset_top = -150.0
+offset_right = 300.0
+offset_bottom = 150.0
+
+[node name="Title" type="Label" parent="VBoxContainer" unique_id=1799154254]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Lunch Break"
+
+[node name="DialogueLabel" type="Label" parent="VBoxContainer" unique_id=822794357]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "You take a moment to reflect on your decisions...
+
+[In the full game, God will have a dialogue with you here about the day's events and provide hints about the morality guide.]
+
+Click [Next Day] to begin tomorrow."
+
+[node name="NextDayButton" type="Button" parent="VBoxContainer" unique_id=232399080]
+layout_mode = 2
+text = "Next Day"

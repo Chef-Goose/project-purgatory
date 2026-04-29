@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://2xr8etpa0yjs"]
 
 [ext_resource type="Texture2D" uid="uid://fb8v45th2i8a" path="res://assets/art/environments/Desk_RD1.png" id="1_3yje6"]
+[ext_resource type="PackedScene" uid="uid://b6xpq5g5syw5a" path="res://scenes/ui/fate_decision_ui.tscn" id="1_6oaw3"]
 [ext_resource type="PackedScene" uid="uid://fl6pbuqy3msu" path="res://scenes/ui/music.tscn" id="2_dj1d4"]
 [ext_resource type="Script" uid="uid://btugaslu0kd8w" path="res://scripts/core/table_camera_controller.gd" id="4_e4jfb"]
 [ext_resource type="PackedScene" path="res://scenes/ui/camera_return_button.tscn" id="5_634sb"]
@@ -11,6 +12,9 @@
 [ext_resource type="PackedScene" uid="uid://bhj68woo2xi24" path="res://scenes/objects/root_beer.tscn" id="8_jmqxf"]
 [ext_resource type="PackedScene" uid="uid://cu77eiqb75ldp" path="res://scenes/objects/mallard_duck.tscn" id="9_6oaw3"]
 [ext_resource type="PackedScene" uid="uid://4oh7tolg3w1p" path="res://scenes/objects/rubber_duck.tscn" id="9_hc0a1"]
+[ext_resource type="PackedScene" uid="uid://duglha4wp5ydx" path="res://scenes/objects/passport_info.tscn" id="11_passport_info"]
+[ext_resource type="PackedScene" uid="uid://b1qiybsajbqk8" path="res://scenes/characters/singleframe_table_character.tscn" id="15_fqvaw"]
+[ext_resource type="Script" uid="uid://6pigfmko6lsj" path="res://scripts/core/table_manager.gd" id="table_manager"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7n5db"]
 size = Vector2(1492, 928)
@@ -20,6 +24,9 @@ size = Vector2(1432.125, 836.5)
 
 [node name="table" type="Node2D" unique_id=33346175]
 position = Vector2(588, 351)
+script = ExtResource("table_manager")
+
+[node name="FateDecisionUI" parent="." unique_id=241530959 instance=ExtResource("1_6oaw3")]
 
 [node name="DeskRd1" type="Sprite2D" parent="." unique_id=2064408087]
 position = Vector2(198, -348)
@@ -101,6 +108,9 @@ position = Vector2(-623, -424)
 [node name="TargetLookClick" type="Marker2D" parent="CameraZones/HandsLook" unique_id=1895829327]
 position = Vector2(-360, -282)
 
+[node name="PassportInfo" parent="." unique_id=1338894969 instance=ExtResource("11_passport_info")]
+position = Vector2(760, 110)
+
 [node name="game_object" parent="." unique_id=1909657811 instance=ExtResource("7_dllcf")]
 position = Vector2(-40, -139)
 
@@ -119,3 +129,5 @@ shadow_offset = Vector2(0, 20)
 position = Vector2(-407, -322)
 drag_hover_offset = Vector2(0, -15)
 shadow_offset = Vector2(0, 20)
+
+[node name="CanvasLayer" parent="." unique_id=1314259860 instance=ExtResource("15_fqvaw")]

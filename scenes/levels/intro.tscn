@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://cdqxktrbajccs"]
+
+[ext_resource type="Script" uid="uid://cb2sbcx4pyja6" path="res://scripts/ui/intro_manager.gd" id="1_intro"]
+
+[node name="Intro" type="Node2D" unique_id=87603327]
+position = Vector2(455, 243)
+script = ExtResource("1_intro")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=571365985]
+color = Color(0.05, 0.05, 0.1, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=740990184]
+offset_left = -400.0
+offset_top = -200.0
+offset_right = 400.0
+offset_bottom = 200.0
+
+[node name="Title" type="Label" parent="VBoxContainer" unique_id=1125690405]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "PROJECT PURGATORY"
+
+[node name="Subtitle" type="Label" parent="VBoxContainer" unique_id=1809510696]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "A story of divine bureaucracy"
+
+[node name="DescriptionLabel" type="Label" parent="VBoxContainer" unique_id=1687037509]
+custom_minimum_size = Vector2(800, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "The game will start with an opening dialogue where your character arrives in purgatory and meets God.
+
+For now, click [Start Game] to begin the first work day."
+
+[node name="StartButton" type="Button" parent="VBoxContainer" unique_id=1755339944]
+layout_mode = 2
+text = "Start Game"

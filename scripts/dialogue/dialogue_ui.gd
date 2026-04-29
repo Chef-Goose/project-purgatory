@@ -1,5 +1,7 @@
 extends Control
 
+signal dialogue_finished
+
 
 @export var dialogue_resource: DialogueResource
 @export var start_from_title: String = ""
@@ -97,12 +99,30 @@ func start(with_dialogue_resource: DialogueResource = null, title: String = "", 
 	_go_to_line(start_from_title)
 
 
+func start_for_character(character_data: CharacterData) -> void:
+	if character_data == null:
+		return
+
+	if character_data.dialogue_resource != null:
+		dialogue_resource = character_data.dialogue_resource
+
+	if not character_data.intro_dialogue_title.is_empty():
+		start_from_title = character_data.intro_dialogue_title
+
+	if character_data.portrait_set != null:
+		character_portrait_sets = [character_data.portrait_set]
+
+	_build_portrait_set_lookup()
+	start(dialogue_resource, start_from_title)
+
+
 func _go_to_line(next_id: String) -> void:
 	is_waiting_for_input = false
 	dialogue_line = await dialogue_resource.get_next_dialogue_line(next_id, temporary_game_states)
 
 	if dialogue_line == null:
 		visible = false
+		dialogue_finished.emit()
 		return
 
 	_apply_dialogue_line()

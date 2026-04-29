@@ -38,6 +38,36 @@
 - `scenes/` contains gameplay and UI scenes.
 - `addons/` contains third-party or bundled editor tooling.
 
+## Tier 1 Systems (Game Loop & Character Management)
+
+### DayCycleManager (Autoload)
+- **Location**: `scripts/core/day_cycle_manager.gd`
+- **Purpose**: Orchestrates the entire day flow: intro → characters → fate decisions → summary → overworld → lunch break → next day
+- **Key Methods**:
+  - `intro_complete()` — Called when opening dialogue finishes
+  - `on_character_conversation_complete(character)` — Called after each NPC interaction
+  - `assign_fate(character, fate)` — Records heaven/hell decision
+  - `go_to_overworld()` / `go_to_lunch_break()` / `next_day()` — Transitions
+
+### CharacterData (Resource)
+- **Location**: `scripts/core/character_data.gd`
+- **Purpose**: Encapsulates all NPC data: name, portrait, passport info, dialogue, morality weight, lie flags, fate
+- **Used By**: DayCycleManager for character selection and tracking
+
+### FateDecisionUI
+- **Location**: `scripts/ui/fate_decision_ui.gd`
+- **Purpose**: Heaven/Hell button UI always available via toggle button during character interactions
+- **Key Methods**:
+  - `set_current_character(character)` — Update the UI for the active character
+  - `_toggle_panel()` — Show/hide the decision panel
+- **Integration**: Add `scenes/ui/fate_decision_ui.tscn` as a CanvasLayer child in the table scene
+- **Design**: Player can open the fate panel at any time and decide without waiting for dialogue to finish
+
+### DaySummaryUI
+- **Location**: `scripts/ui/day_summary_ui.gd`
+- **Purpose**: Displays end-of-day results (heaven/hell counts) and transitions to overworld
+
 ## If You Need More Context
 - Check `README.md` first for project-level rules.
+- Check `TIER1_SETUP.md` for wiring instructions and testing the game loop.
 - Inspect nearby scripts and scenes before making broad changes.

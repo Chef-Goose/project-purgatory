@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://c6pqvvqa6np61"]
+
+[ext_resource type="Script" uid="uid://s5bw1isl378p" path="res://scripts/ui/day_summary_ui.gd" id="1_abc12"]
+
+[node name="DaySummary" type="Control" unique_id=796941303]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 680.0
+offset_top = 349.0
+offset_right = 680.0
+offset_bottom = 349.0
+script = ExtResource("1_abc12")
+summary_label_path = NodePath("VBoxContainer/SummaryLabel")
+continue_button_path = NodePath("VBoxContainer/ContinueButton")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=808027703]
+layout_mode = 1
+color = Color(0.1, 0.1, 0.15, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1790737350]
+layout_mode = 1
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
+
+[node name="SummaryLabel" type="Label" parent="VBoxContainer" unique_id=173844650]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Day 1 Summary
+
+Sent to Heaven: 0
+Sent to Hell: 0
+
+You have made your decisions."
+
+[node name="ContinueButton" type="Button" parent="VBoxContainer" unique_id=547240894]
+layout_mode = 2
+text = "Continue to Overworld"

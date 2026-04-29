@@ -23,6 +23,7 @@ MusicController="*res://scripts/audio/music_controller.gd"
 DialogueMusicBridge="*res://scenes/audio/dialogue_music_bridge.tscn"
 GameCursor="*res://scenes/ui/game_cursor.tscn"
 ObjectHandler="*res://scripts/core/object_handler.gd"
+GameManager="*uid://b84src7d3yios"
 
 [dialogue_manager]
 

@@ -1,7 +1,7 @@
 extends Button
 
-@export var hover_sound: AudioStream = preload("res://assets/audio/Menu Up-Down.wav")
-@export var pressed_sound: AudioStream = preload("res://assets/audio/Menu Select Sound.wav")
+@export var hover_sound: AudioStream = preload("res://assets/audio/effects/menu/Menu Up-Down.wav")
+@export var pressed_sound: AudioStream = preload("res://assets/audio/effects/menu/Menu Select Sound.wav")
 
 @onready var _audio_player: AudioStreamPlayer = $AudioStreamPlayer
 

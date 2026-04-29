@@ -1,5 +1,7 @@
 extends Area2D
 
+signal clicked
+
 @export var camera_path: NodePath
 @export var target_node: Node2D
 @export var look_offset: Vector2 = Vector2.ZERO
@@ -58,6 +60,7 @@ func _input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 			return
 
 		camera.snap_to_zone(_click_target_position(), click_snap_zoom, click_snap_speed)
+		clicked.emit()
 
 
 func _hover_target_position() -> Vector2:

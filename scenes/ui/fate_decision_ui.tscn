@@ -1,0 +1,63 @@
+[gd_scene format=3 uid="uid://b6xpq5g5syw5a"]
+
+[ext_resource type="Script" uid="uid://yq2suejpvms6" path="res://scripts/ui/fate_decision_ui.gd" id="1_fate_ui"]
+
+[node name="FateDecisionUI" type="CanvasLayer" unique_id=570577315]
+
+[node name="ToggleButton" type="Button" parent="." unique_id=1782644886]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -120.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 50.0
+text = "Assign Fate"
+
+[node name="DecisionPanel" type="PanelContainer" parent="." unique_id=661642775]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
+script = ExtResource("1_fate_ui")
+heaven_button_path = NodePath("VBoxContainer/CharacterLabel/HBoxContainer/HeavenButton")
+hell_button_path = NodePath("VBoxContainer/CharacterLabel/HBoxContainer/HellButton")
+character_name_label_path = NodePath("VBoxContainer/CharacterLabel/NameLabel")
+decision_prompt_path = NodePath("VBoxContainer/CharacterLabel/PromptLabel")
+toggle_button_path = NodePath("../ToggleButton")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DecisionPanel" unique_id=460551331]
+layout_mode = 2
+
+[node name="CharacterLabel" type="VBoxContainer" parent="DecisionPanel/VBoxContainer" unique_id=1069622505]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="DecisionPanel/VBoxContainer/CharacterLabel" unique_id=1508346736]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Character Name"
+
+[node name="PromptLabel" type="Label" parent="DecisionPanel/VBoxContainer/CharacterLabel" unique_id=1440653414]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Send character to..."
+
+[node name="HBoxContainer" type="HBoxContainer" parent="DecisionPanel/VBoxContainer/CharacterLabel" unique_id=814776852]
+layout_mode = 2
+
+[node name="HeavenButton" type="Button" parent="DecisionPanel/VBoxContainer/CharacterLabel/HBoxContainer" unique_id=1251516243]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8, 1, 0.8, 1)
+text = "Heaven"
+
+[node name="HellButton" type="Button" parent="DecisionPanel/VBoxContainer/CharacterLabel/HBoxContainer" unique_id=887653908]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.6, 0.6, 1)
+text = "Hell"

@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://djdkafn4r5yj"]
+
+[ext_resource type="Script" uid="uid://ctguv7njm4map" path="res://scripts/ui/overworld_manager.gd" id="1_overworld"]
+
+[node name="Overworld" type="Node2D" unique_id=428109972]
+position = Vector2(452, 263)
+script = ExtResource("1_overworld")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=808239997]
+color = Color(0.2, 0.25, 0.3, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=1560208185]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UILayer" unique_id=1746232532]
+offset_left = 478.0
+offset_top = 299.0
+offset_right = 1078.0
+offset_bottom = 699.0
+
+[node name="Title" type="Label" parent="UILayer/VBoxContainer" unique_id=1899910617]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Purgatory Overworld"
+
+[node name="DescriptionLabel" type="Label" parent="UILayer/VBoxContainer" unique_id=987952614]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "[This will be an overhead/eagle-eye view where you can explore purgatory.]
+
+For now, click [Go to Lunch Break] to continue the story cycle."
+
+[node name="LunchBreakButton" type="Button" parent="UILayer/VBoxContainer" unique_id=639078519]
+layout_mode = 2
+text = "Go to Lunch Break"
