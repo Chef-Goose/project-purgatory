@@ -99,21 +99,24 @@ func start(with_dialogue_resource: DialogueResource = null, title: String = "", 
 	_go_to_line(start_from_title)
 
 
-func start_for_character(character_data: CharacterData) -> void:
+func start_for_character(character_data: CharacterData, dialogue_slot: String = "") -> void:
 	if character_data == null:
 		return
 
-	if character_data.dialogue_resource != null:
-		dialogue_resource = character_data.dialogue_resource
+	var dialogue_to_use: DialogueResource = character_data.get_dialogue_resource_for_slot(dialogue_slot)
+	if dialogue_to_use == null:
+		push_warning("DialogueUI could not resolve a dialogue resource for character '%s' (slot '%s'). Falling back to the scene default." % [character_data.character_name, dialogue_slot])
+		dialogue_to_use = dialogue_resource
 
-	if not character_data.intro_dialogue_title.is_empty():
-		start_from_title = character_data.intro_dialogue_title
+	var title_to_use: String = start_from_title
+	if title_to_use.is_empty():
+		title_to_use = character_data.get_dialogue_title_for_slot(dialogue_slot)
 
-	if character_data.portrait_set != null:
+	if character_portrait_sets.is_empty() and character_data.portrait_set != null:
 		character_portrait_sets = [character_data.portrait_set]
 
 	_build_portrait_set_lookup()
-	start(dialogue_resource, start_from_title)
+	start(dialogue_to_use, title_to_use)
 
 
 func _go_to_line(next_id: String) -> void:

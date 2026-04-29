@@ -29,7 +29,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "[This will be an overhead/eagle-eye view where you can explore purgatory.]
 
-For now, click [Go to Lunch Break] to continue the story cycle."
+For now this will be placeholder."
 
 [node name="LunchBreakButton" type="Button" parent="UILayer/VBoxContainer" unique_id=639078519]
 layout_mode = 2

@@ -6,30 +6,14 @@
 [ext_resource type="Texture2D" uid="uid://c10jmvic3hfj4" path="res://assets/art/characters/SampleSam/samplesamangry.png" id="4_ctq5m"]
 [ext_resource type="Texture2D" uid="uid://bflvwlebg4np" path="res://assets/art/characters/SampleSam/samplesamsad.png" id="5_q2v8u"]
 
-[node name="CanvasLayer" type="CanvasLayer" unique_id=1314259860]
-layer = -1
+[node name="SingleframeCharacter" type="Node2D" unique_id=1314259860]
 script = ExtResource("1_t2ua5")
 idle_texture = ExtResource("2_dyd6x")
 talking_texture = ExtResource("3_2iogt")
 angry_texture = ExtResource("4_ctq5m")
 sad_texture = ExtResource("5_q2v8u")
 
-[node name="Control" type="Control" parent="." unique_id=754219547]
-layout_mode = 3
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -20.0
-offset_top = -40.0
-offset_right = 20.0
-grow_horizontal = 2
-grow_vertical = 0
-
-[node name="Node2D" type="Node2D" parent="Control" unique_id=1983121786]
-
-[node name="Sprite2D" type="Sprite2D" parent="Control/Node2D" unique_id=328664052]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=328664052]
 position = Vector2(7, -262.00003)
 scale = Vector2(1.4652406, 1.4652406)
 texture = ExtResource("2_dyd6x")

@@ -12,8 +12,8 @@ var game_started: bool = false
 @export var intro_scene_path: String = "res://scenes/levels/intro.tscn"
 @export var table_scene_path: String = "res://scenes/levels/table.tscn"
 @export var overworld_scene_path: String = "res://scenes/levels/overworld.tscn"
-@export var summary_scene_path: String = "res://scenes/ui/day_summary.tscn"
-@export var lunch_scene_path: String = "res://scenes/ui/lunch_break.tscn"
+@export var summary_scene_path: String = "res://scenes/levels/day_summary.tscn"
+@export var lunch_scene_path: String = "res://scenes/levels/lunch_break.tscn"
 
 ## Character pool (add characters for different days)
 var all_available_characters: Array[CharacterData] = []
@@ -126,6 +126,22 @@ func get_current_character() -> CharacterData:
 	return null
 
 
+## Pick which dialogue slot to use for this character right now.
+func get_dialogue_slot_for_character(character: CharacterData) -> String:
+	if character == null:
+		return ""
+
+	if character.has_been_spoken_to:
+		if not character.follow_up_dialogue_title.is_empty():
+			return character.follow_up_dialogue_title
+		return "follow_up"
+
+	if not character.intro_dialogue_title.is_empty():
+		return character.intro_dialogue_title
+
+	return character.default_dialogue_slot
+
+
 ## Placeholder character setup (replace with real data)
 func _create_placeholder_characters() -> void:
 	var sample_portrait_set := CharacterPortraitSet.new()
@@ -136,26 +152,30 @@ func _create_placeholder_characters() -> void:
 	sample_portrait_set.angry_texture = preload("res://assets/art/characters/SampleSam/samplesamangry.png")
 	sample_portrait_set.sad_texture = preload("res://assets/art/characters/SampleSam/samplesamsad.png")
 
-	var char1 = CharacterData.new("Bureaucrat Bob", "bureaucrat_bob")
+	var char1 = CharacterData.new("Wayne", "wayne")
 	char1.description = "A spreadsheet enthusiast with questionable moral priorities."
 	char1.morality_weight = -0.3
 	char1.passport_info = {"occupation": "Account Manager", "age": "45"}
 	char1.portrait_set = sample_portrait_set
-	char1.dialogue_resource = preload("res://scripts/dialogue/tester.dialogue")
+	char1.default_dialogue_slot = "start"
+	char1.set_dialogue_slot_path("start", "res://scripts/dialogue/wayne_intro.dialogue")
 	
-	var char2 = CharacterData.new("Dr. Seraph", "dr_seraph")
-	char2.description = "A retired surgeon with a humanitarian streak."
+	var char2 = CharacterData.new("Pepsi Man", "pepsi_man")
+	char2.description = "FUELED."
 	char2.morality_weight = 0.8
-	char2.passport_info = {"occupation": "Surgeon", "age": "62"}
+	char2.passport_info = {"occupation": "RUNNER/DELIVERER", "age": "62"}
 	char2.portrait_set = sample_portrait_set
-	char2.dialogue_resource = preload("res://scripts/dialogue/tester.dialogue")
+	char2.default_dialogue_slot = "start"
+	char2.set_dialogue_slot_path("start", "res://scripts/dialogue/pepsi_man_intro.dialogue")
+	char2.set_dialogue_slot_path("follow_up", "res://scripts/dialogue/pepsi_man_follow_up.dialogue")
 	
-	var char3 = CharacterData.new("Influencer Dana", "influencer_dana")
+	var char3 = CharacterData.new("Derrick", "derrick")
 	char3.description = "Social media personality with unclear ethics."
 	char3.morality_weight = -0.1
 	char3.passport_info = {"occupation": "Content Creator", "age": "28"}
 	char3.portrait_set = sample_portrait_set
-	char3.dialogue_resource = preload("res://scripts/dialogue/tester.dialogue")
+	char3.default_dialogue_slot = "start"
+	char3.set_dialogue_slot_path("start", "res://scripts/dialogue/derrick_intro.dialogue")
 	
 	all_available_characters = [char1, char2, char3]
 

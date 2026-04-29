@@ -1,21 +1,5 @@
 [gd_scene format=3 uid="uid://chvimvhopl60x"]
 
-[node name="CanvasLayer" type="CanvasLayer" unique_id=340268911]
-layer = 0
+[node name="AnimatedCharacter" type="Node2D" unique_id=340268911]
 
-[node name="Control" type="Control" parent="." unique_id=820391171]
-layout_mode = 3
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -20.0
-offset_top = -40.0
-offset_right = 20.0
-grow_horizontal = 2
-grow_vertical = 0
-
-[node name="Node2D" type="Node2D" parent="Control" unique_id=751766651]
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Control/Node2D" unique_id=1266710202]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1266710202]

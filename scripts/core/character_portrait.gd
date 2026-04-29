@@ -1,4 +1,4 @@
-extends CanvasLayer
+extends Node2D
 class_name CharacterPortrait
 
 enum Mood {
@@ -14,7 +14,7 @@ enum Mood {
 @export var sad_texture: Texture2D
 @export var default_mood: Mood = Mood.IDLE
 
-@onready var _sprite: Sprite2D = $Control/Node2D/Sprite2D
+@onready var _sprite: Sprite2D = $Sprite2D
 
 func _ready() -> void:
 	if not is_in_group("character_portrait"):

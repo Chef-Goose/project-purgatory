@@ -57,18 +57,6 @@ This means dialogue doesn't need to "trigger" the fate UI anymore — it's playe
 5. Summary shows results → Go to overworld
 6. Overworld → Go to lunch break → Next day (loops back to step 2)
 
-## ⚠️ CRITICAL: Setting Up the Autoload
-
-Before any of this works, you MUST set up DayCycleManager as an autoload:
-
-1. Open Godot Editor
-2. Go to **Project → Project Settings → Autoload** tab
-3. Click the folder icon next to "Node Path" and select `res://scripts/core/day_cycle_manager.gd`
-4. Set **Node Name** to `GameManager`
-5. Click **Add**
-
-Once this is done, DayCycleManager will be available globally as `GameManager`, and all the scene transitions will work.
-
 ## What's Next (Tier 2)
 
 Once this is working:

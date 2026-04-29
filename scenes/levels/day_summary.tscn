@@ -31,8 +31,7 @@ text = "Day 1 Summary
 
 Sent to Heaven: 0
 Sent to Hell: 0
-
-You have made your decisions."
+"
 
 [node name="ContinueButton" type="Button" parent="VBoxContainer" unique_id=547240894]
 layout_mode = 2

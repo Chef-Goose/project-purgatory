@@ -2,11 +2,9 @@
 
 [ext_resource type="Theme" uid="uid://5wpinp7fdeih" path="res://scenes/ui/UI_theme.tres" id="1_y3syv"]
 [ext_resource type="Script" uid="uid://g32um0mltv5d" path="res://addons/dialogue_manager/dialogue_label.gd" id="2_sd0pw"]
-[ext_resource type="Resource" uid="uid://de5nockmmegqu" path="res://scripts/dialogue/tester.dialogue" id="3_awmck"]
 [ext_resource type="Script" uid="uid://b7ukmeguylxbe" path="res://scripts/dialogue/dialogue_ui.gd" id="3_tjfo0"]
 [ext_resource type="Script" uid="uid://cvejm24djkvdm" path="res://scripts/core/character_portrait_set.gd" id="4_h642u"]
 [ext_resource type="Texture2D" uid="uid://c10jmvic3hfj4" path="res://assets/art/characters/SampleSam/samplesamangry.png" id="5_c5gvf"]
-[ext_resource type="PackedScene" uid="uid://c4cgp0bswbx4y" path="res://scenes/characters/singleframe_character.tscn" id="5_yi6h4"]
 [ext_resource type="Texture2D" uid="uid://bb0i4ncloxl67" path="res://assets/art/characters/SampleSam/samplesamidle.png" id="6_qy5q6"]
 [ext_resource type="Texture2D" uid="uid://bflvwlebg4np" path="res://assets/art/characters/SampleSam/samplesamsad.png" id="7_gegk4"]
 [ext_resource type="Texture2D" uid="uid://bfeo01pqg7kj5" path="res://assets/art/characters/SampleSam/samplesamtalking.png" id="8_blwni"]
@@ -33,9 +31,6 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_y3syv")
 script = ExtResource("3_tjfo0")
-dialogue_resource = ExtResource("3_awmck")
-auto_start = true
-portrait_node_path = NodePath("CanvasLayer")
 character_portrait_sets = Array[ExtResource("4_h642u")]([SubResource("Resource_cpc2c")])
 
 [node name="TextBox" type="PanelContainer" parent="." unique_id=3825422]
@@ -127,5 +122,3 @@ grow_vertical = 0
 position = Vector2(1, -25)
 color = Color(0.47007585, 0.47007585, 0.47007585, 1)
 polygon = PackedVector2Array(0, 0, 20, 20, 0, 40)
-
-[node name="CanvasLayer" parent="." unique_id=1314259860 instance=ExtResource("5_yi6h4")]

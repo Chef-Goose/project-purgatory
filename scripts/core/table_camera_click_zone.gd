@@ -56,7 +56,7 @@ func _on_mouse_exited() -> void:
 func _input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		var camera := _resolve_camera()
-		if camera == null:
+		if camera == null or camera.is_interaction_locked():
 			return
 
 		camera.snap_to_zone(_click_target_position(), click_snap_zoom, click_snap_speed)

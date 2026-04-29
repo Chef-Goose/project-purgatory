@@ -36,7 +36,7 @@ func _update_summary() -> void:
 	var summary_text = "Day %d Summary\n\n" % day_cycle_manager.current_day
 	summary_text += "Sent to Heaven: %d\n" % heaven_count
 	summary_text += "Sent to Hell: %d\n\n" % hell_count
-	summary_text += "You have made your decisions. The consequences will unfold..."
+	summary_text += ""
 	
 	summary_label.text = summary_text
 

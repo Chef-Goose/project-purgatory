@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://c5rlbwqyyavgc"
+path="res://.godot/imported/wayne_intro.dialogue-4665eff22e5189d553014dfb3af1b32b.tres"
+
+[deps]
+
+source_file="res://scripts/dialogue/wayne_intro.dialogue"
+dest_files=["res://.godot/imported/wayne_intro.dialogue-4665eff22e5189d553014dfb3af1b32b.tres"]
+
+[params]
+
+defaults=true

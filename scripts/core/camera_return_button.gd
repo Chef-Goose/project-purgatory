@@ -21,6 +21,9 @@ func _process(_delta: float) -> void:
 
 
 func _on_return_pressed() -> void:
+	if _camera.is_interaction_locked():
+		return
+
 	_camera.clear_hover_zones()
 	_camera.clear_snap()
 	_update_visibility()
@@ -31,7 +34,7 @@ func _update_visibility() -> void:
 		visible = true
 		return
 
-	visible = _camera.is_snap_active()
+	visible = _camera.is_snap_active() and not _camera.is_interaction_locked()
 
 
 func _resolve_camera() -> TableCameraController:

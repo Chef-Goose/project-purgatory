@@ -1,6 +1,8 @@
 extends PanelContainer
 class_name FateDecisionUI
 
+signal panel_visibility_changed(is_visible: bool)
+
 @export var heaven_button_path: NodePath
 @export var hell_button_path: NodePath
 @export var character_name_label_path: NodePath
@@ -31,6 +33,11 @@ func _ready() -> void:
 	heaven_button.pressed.connect(_on_heaven_pressed)
 	hell_button.pressed.connect(_on_hell_pressed)
 	toggle_button.pressed.connect(_toggle_panel)
+
+	# Keep fate controls mouse-driven to avoid accidental keyboard toggles.
+	toggle_button.focus_mode = Control.FOCUS_NONE
+	heaven_button.focus_mode = Control.FOCUS_NONE
+	hell_button.focus_mode = Control.FOCUS_NONE
 	
 	# Start with this panel hidden, but CanvasLayer stays visible
 	hide()
@@ -47,6 +54,17 @@ func set_current_character(character: CharacterData) -> void:
 		toggle_button.hide()
 
 
+func set_fate_button_visible(is_visible: bool) -> void:
+	if toggle_button:
+		toggle_button.visible = is_visible and current_character != null
+
+
+func is_fate_button_visible() -> bool:
+	if toggle_button == null:
+		return false
+	return toggle_button.visible
+
+
 ## Toggle the decision panel visibility
 func _toggle_panel() -> void:
 	if not current_character:
@@ -58,11 +76,18 @@ func _toggle_panel() -> void:
 	else:
 		hide()
 
+	panel_visibility_changed.emit(is_panel_visible)
+
 
 ## Hide the decision panel
 func hide_panel() -> void:
 	is_panel_visible = false
 	hide()
+	panel_visibility_changed.emit(is_panel_visible)
+
+
+func is_panel_open() -> bool:
+	return is_panel_visible
 
 
 func _on_heaven_pressed() -> void:

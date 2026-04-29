@@ -14,6 +14,8 @@
 [ext_resource type="PackedScene" uid="uid://4oh7tolg3w1p" path="res://scenes/objects/rubber_duck.tscn" id="9_hc0a1"]
 [ext_resource type="PackedScene" uid="uid://duglha4wp5ydx" path="res://scenes/objects/passport_info.tscn" id="11_passport_info"]
 [ext_resource type="PackedScene" uid="uid://b1qiybsajbqk8" path="res://scenes/characters/singleframe_table_character.tscn" id="15_fqvaw"]
+[ext_resource type="PackedScene" uid="uid://1sdpebm0q8rq" path="res://scenes/ui/dialogue_ui.tscn" id="16_osr7f"]
+[ext_resource type="Resource" uid="uid://ciy7ma7h3vt44" path="res://scripts/dialogue/samplesamexample.dialogue" id="17_3s3c0"]
 [ext_resource type="Script" uid="uid://6pigfmko6lsj" path="res://scripts/core/table_manager.gd" id="table_manager"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7n5db"]
@@ -131,3 +133,10 @@ drag_hover_offset = Vector2(0, -15)
 shadow_offset = Vector2(0, 20)
 
 [node name="CanvasLayer" parent="." unique_id=1314259860 instance=ExtResource("15_fqvaw")]
+position = Vector2(-199, -404)
+scale = Vector2(0.7, 0.7)
+
+[node name="DialogueUILayer" type="CanvasLayer" parent="." unique_id=995318328]
+
+[node name="DialogueUI" parent="DialogueUILayer" unique_id=1632973447 instance=ExtResource("16_osr7f")]
+dialogue_resource = ExtResource("17_3s3c0")

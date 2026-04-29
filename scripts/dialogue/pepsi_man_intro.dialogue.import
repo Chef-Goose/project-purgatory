@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://cu6n0yaxxkjpm"
+path="res://.godot/imported/pepsi_man_intro.dialogue-8c04f350ba57c6077eb06d4d082ca358.tres"
+
+[deps]
+
+source_file="res://scripts/dialogue/pepsi_man_intro.dialogue"
+dest_files=["res://.godot/imported/pepsi_man_intro.dialogue-8c04f350ba57c6077eb06d4d082ca358.tres"]
+
+[params]
+
+defaults=true

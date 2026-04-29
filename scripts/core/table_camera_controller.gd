@@ -2,6 +2,8 @@ extends Camera2D
 
 class_name TableCameraController
 
+signal snap_completed
+
 @export_group("Base")
 @export var base_follow_speed: float = 6.0
 @export var base_zoom: Vector2 = Vector2.ONE
@@ -18,6 +20,8 @@ var _snap_active: bool = false
 var _snap_target: Vector2 = Vector2.ZERO
 var _snap_zoom: Vector2 = Vector2(0.8, 0.8)
 var _snap_speed: float = 22.0
+var _snap_completed_emitted: bool = false
+var _interaction_locked: bool = false
 
 
 func _ready() -> void:
@@ -32,9 +36,14 @@ func _process(delta: float) -> void:
 	if _snap_active:
 		global_position = global_position.lerp(_snap_target, _smoothing_weight(_snap_speed, delta))
 		zoom = zoom.lerp(_snap_zoom, _smoothing_weight(_snap_speed, delta))
+		if not _snap_completed_emitted and global_position.distance_to(_snap_target) <= 0.5 and zoom.distance_to(_snap_zoom) <= 0.01:
+			global_position = _snap_target
+			zoom = _snap_zoom
+			_snap_completed_emitted = true
+			snap_completed.emit()
 		return
 
-	if not _hover_entries.is_empty():
+	if not _interaction_locked and not _hover_entries.is_empty():
 		global_position = global_position.lerp(_active_hover_target, _smoothing_weight(_active_hover_speed, delta))
 		zoom = zoom.lerp(base_zoom, _smoothing_weight(base_follow_speed, delta))
 		return
@@ -44,12 +53,15 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _interaction_locked:
+		return
+
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		clear_snap()
 
 
 func enter_hover_zone(zone: Node2D, target_position: Vector2, speed: float = 10.0, priority: int = 0) -> void:
-	if zone == null:
+	if zone == null or _interaction_locked:
 		return
 
 	_hover_entries[zone.get_instance_id()] = {
@@ -62,7 +74,7 @@ func enter_hover_zone(zone: Node2D, target_position: Vector2, speed: float = 10.
 
 
 func exit_hover_zone(zone: Node2D) -> void:
-	if zone == null:
+	if zone == null or _interaction_locked:
 		return
 
 	_hover_entries.erase(zone.get_instance_id())
@@ -74,10 +86,12 @@ func snap_to_zone(target_position: Vector2, snap_zoom_level: Vector2, speed: flo
 	_snap_zoom = snap_zoom_level
 	_snap_speed = snap_default_speed if speed <= 0.0 else speed
 	_snap_active = true
+	_snap_completed_emitted = false
 
 
 func clear_snap() -> void:
 	_snap_active = false
+	_snap_completed_emitted = false
 
 
 func is_snap_active() -> bool:
@@ -88,6 +102,14 @@ func clear_hover_zones() -> void:
 	_hover_entries.clear()
 	_active_hover_target = _base_position
 	_active_hover_speed = base_follow_speed
+
+
+func set_interaction_locked(locked: bool) -> void:
+	_interaction_locked = locked
+
+
+func is_interaction_locked() -> bool:
+	return _interaction_locked
 
 
 func _refresh_active_hover_zone() -> void:

@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://i1glunwhb43w"
+path="res://.godot/imported/derrick_intro.dialogue-4ad574ac75f18c241b319cd646aa69fe.tres"
+
+[deps]
+
+source_file="res://scripts/dialogue/derrick_intro.dialogue"
+dest_files=["res://.godot/imported/derrick_intro.dialogue-4ad574ac75f18c241b319cd646aa69fe.tres"]
+
+[params]
+
+defaults=true

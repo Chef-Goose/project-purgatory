@@ -30,9 +30,7 @@ text = "A story of divine bureaucracy"
 custom_minimum_size = Vector2(800, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-text = "The game will start with an opening dialogue where your character arrives in purgatory and meets God.
-
-For now, click [Start Game] to begin the first work day."
+text = "The game will start with an opening dialogue where your character arrives in purgatory and meets God."
 
 [node name="StartButton" type="Button" parent="VBoxContainer" unique_id=1755339944]
 layout_mode = 2
