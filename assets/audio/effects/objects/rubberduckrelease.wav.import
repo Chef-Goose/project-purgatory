@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://bgxv5og87gnn7"
-path="res://.godot/imported/rubberduckrelease.wav-44ce4cd87bc26387cdb51751eba03776.sample"
+path="res://.godot/imported/rubberduckrelease.wav-3ca38bc677b2eae33db225db0bad3796.sample"
 
 [deps]
 
-source_file="res://assets/audio/rubberduckrelease.wav"
-dest_files=["res://.godot/imported/rubberduckrelease.wav-44ce4cd87bc26387cdb51751eba03776.sample"]
+source_file="res://assets/audio/effects/objects/rubberduckrelease.wav"
+dest_files=["res://.godot/imported/rubberduckrelease.wav-3ca38bc677b2eae33db225db0bad3796.sample"]
 
 [params]
 

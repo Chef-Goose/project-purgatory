@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://ceu7xhv8hjqbw"
+path="res://.godot/imported/paper 9.wav-d8bb76655c0ff3c5bf805c15bde4bcfe.sample"
+
+[deps]
+
+source_file="res://assets/audio/effects/objects/paper 9.wav"
+dest_files=["res://.godot/imported/paper 9.wav-d8bb76655c0ff3c5bf805c15bde4bcfe.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

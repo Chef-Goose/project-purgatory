@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://cdkqtrmyvy36j"
-path="res://.godot/imported/Paper & Office Fan.wav-e3eb1842c5aee93bf35624f8cbf7afe9.sample"
+path="res://.godot/imported/Paper & Office Fan.wav-1eb81757084747e492135d17e0d35534.sample"
 
 [deps]
 
-source_file="res://assets/audio/Paper & Office Fan.wav"
-dest_files=["res://.godot/imported/Paper & Office Fan.wav-e3eb1842c5aee93bf35624f8cbf7afe9.sample"]
+source_file="res://assets/audio/effects/objects/Paper & Office Fan.wav"
+dest_files=["res://.godot/imported/Paper & Office Fan.wav-1eb81757084747e492135d17e0d35534.sample"]
 
 [params]
 

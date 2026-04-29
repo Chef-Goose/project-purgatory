@@ -13,13 +13,12 @@ config_version=5
 config/name="ProjectPurgatory"
 run/main_scene="uid://bx3x02iv2rcnw"
 config/features=PackedStringArray("4.6", "Forward Plus")
-config/icon="res://assets/sprites/icon.svg"
+config/icon="res://assets/testing/icon.svg"
 
 [autoload]
 
 DialogueManager="*uid://c3rodes2l3gxb"
 Conductor="*uid://c5rvmkaorxynb"
-CardHandler="*uid://fcogjrm0vwlp"
 MusicController="*res://scripts/audio/music_controller.gd"
 DialogueMusicBridge="*res://scenes/audio/dialogue_music_bridge.tscn"
 GameCursor="*res://scenes/ui/game_cursor.tscn"

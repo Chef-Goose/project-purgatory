@@ -49,6 +49,11 @@ var rightHand: Node2D = null
 @export var sound_hand_pickup: AudioStream = null  # Sound when picking up into a hand
 @export var sound_hand_drop: AudioStream = null  # Sound when dropping from a hand
 @export_range(1, 16, 1) var audio_polyphony: int = 4
+@export_range(-60.0, 0.0, 0.1) var slide_volume_min_db: float = -24.0
+@export_range(-24.0, 12.0, 0.1) var slide_volume_max_db: float = 0.0
+@export_range(1.0, 12.0, 0.1) var slide_volume_full_speed_multiplier: float = 6.0
+@export_range(0.5, 1.0, 0.01) var slide_pitch_min_scale: float = 0.82
+@export_range(1.0, 2.0, 0.01) var slide_pitch_max_scale: float = 1.08
 
 var mousePosition : Vector2 = Vector2.ZERO
 var leftHandPosition: Vector2 = Vector2.ZERO
@@ -84,8 +89,9 @@ var defaultZIndex: int = 0
 var audioPlayer: AudioStreamPlayer
 var audioPlayers: Array[AudioStreamPlayer] = []
 var audioPlayerCursor: int = 0
-var lastSlideVelocity: Vector2 = Vector2.ZERO
+var slideLoopPlayer: AudioStreamPlayer
 var wasSliding: bool = false
+var slideAudioActiveThisFrame: bool = false
 
 enum floating {overTable, overLeftHand, overRightHand, overNothing}
 var objectFloating : floating = floating.overTable
@@ -152,6 +158,10 @@ func _setup_audio_player() -> void:
 	if audioPlayer == null:
 		audioPlayer = AudioStreamPlayer.new()
 		add_child(audioPlayer)
+
+	if slideLoopPlayer == null:
+		slideLoopPlayer = AudioStreamPlayer.new()
+		add_child(slideLoopPlayer)
 
 	audioPlayers.clear()
 	audioPlayers.append(audioPlayer)
@@ -580,6 +590,7 @@ func _on_area_2d_mouse_shape_exited(_shape_idx: int) -> void:
 
 func _physics_process(delta: float) -> void:
 	releasedDragThisFrame = false
+	slideAudioActiveThisFrame = false
 	var previous_object_position = global_position
 	mouseDifference = mousePosition - get_global_mouse_position()
 	_update_hand_positions()
@@ -594,11 +605,50 @@ func _physics_process(delta: float) -> void:
 	update_table_drop_target()
 	_apply_out_of_bounds_drop(delta)
 	_apply_table_slide(delta)
+	_update_slide_audio(delta)
 	hand_handler()
 	placement_handler()
 	update_perspective_scale()
 	update_drag_presentation(delta)
 	mousePosition = get_global_mouse_position()
+
+func _update_slide_audio(_delta: float) -> void:
+	if slideLoopPlayer == null or !is_instance_valid(slideLoopPlayer):
+		return
+
+	var speed = tableSlideVelocity.length()
+	var slide_active = sound_slide != null and !dragging and !outOfBoundsDropActive and slideAudioActiveThisFrame and speed > _slide_stop_speed()
+	if !slide_active:
+		_stop_slide_loop_audio()
+		return
+
+	if slideLoopPlayer.stream != sound_slide:
+		slideLoopPlayer.stream = sound_slide
+
+	slideLoopPlayer.volume_db = _slide_volume_db_for_speed(speed)
+	slideLoopPlayer.pitch_scale = _slide_pitch_scale_for_speed(speed)
+
+	if !slideLoopPlayer.playing:
+		slideLoopPlayer.play()
+
+func _slide_volume_db_for_speed(speed: float) -> float:
+	var stop_speed = maxf(1.0, _slide_stop_speed())
+	var full_speed = maxf(stop_speed + 1.0, stop_speed * slide_volume_full_speed_multiplier)
+	var blend = clamp((speed - stop_speed) / (full_speed - stop_speed), 0.0, 1.0)
+	return lerp(slide_volume_min_db, slide_volume_max_db, blend)
+
+func _slide_pitch_scale_for_speed(speed: float) -> float:
+	var stop_speed = maxf(1.0, _slide_stop_speed())
+	var full_speed = maxf(stop_speed + 1.0, stop_speed * slide_volume_full_speed_multiplier)
+	var blend = clamp((speed - stop_speed) / (full_speed - stop_speed), 0.0, 1.0)
+	return lerp(slide_pitch_min_scale, slide_pitch_max_scale, blend)
+
+func _stop_slide_loop_audio() -> void:
+	if slideLoopPlayer == null or !is_instance_valid(slideLoopPlayer):
+		return
+
+	if slideLoopPlayer.playing:
+		slideLoopPlayer.stop()
 
 func _process(_delta: float) -> void:
 	if dragging:
@@ -896,10 +946,12 @@ func _apply_table_slide(delta: float) -> void:
 		tableSlideVelocity = Vector2.ZERO
 		return
 
+	var start_position = global_position
 	var desired_position = global_position + (tableSlideVelocity * delta)
 	var projected_result = _project_point_to_table_with_collision(desired_position)
 	var projected_position: Vector2 = projected_result["position"]
 	global_position = projected_position
+	slideAudioActiveThisFrame = projected_position.distance_to(start_position) > 0.05
 	tableDropPosition = projected_position
 	hasTableDropTarget = true
 	_refresh_floating_state_from_overlaps()
@@ -1170,13 +1222,14 @@ func _on_area_2d_area_exited(area: Area2D) -> void:
 
 
 # Audio playback helper methods
-func play_sound(audio_stream: AudioStream) -> void:
+func play_sound(audio_stream: AudioStream, volume_db: float = 0.0) -> void:
 	if audio_stream == null:
 		return
 	var player = _get_available_audio_player()
 	if player == null or !is_instance_valid(player):
 		return
 	player.stream = audio_stream
+	player.volume_db = volume_db
 	player.play()
 
 func play_pickup_sound() -> void:
@@ -1187,9 +1240,6 @@ func play_release_sound() -> void:
 
 func play_drop_sound() -> void:
 	play_sound(sound_drop)
-
-func play_slide_sound() -> void:
-	play_sound(sound_slide)
 
 func play_hand_pickup_sound() -> void:
 	play_sound(sound_hand_pickup)

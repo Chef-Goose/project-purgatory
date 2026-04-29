@@ -192,11 +192,11 @@ func _has_hoverable_hit_at(world_2d: World2D, point: Vector2) -> bool:
 
 
 func _is_hover_collision_layer(collider: CollisionObject2D) -> bool:
-	for layer in hover_collision_layers:
-		if layer < 1 or layer > 32:
+	for collision_layer in hover_collision_layers:
+		if collision_layer < 1 or collision_layer > 32:
 			continue
 
-		if collider.get_collision_layer_value(layer):
+		if collider.get_collision_layer_value(collision_layer):
 			return true
 
 	return false

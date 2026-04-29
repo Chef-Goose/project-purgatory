@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://ckjo565qpppa7"
-path="res://.godot/imported/realduck.wav-abb8ee7216f732283a1125cd090198e8.sample"
+path="res://.godot/imported/realduck.wav-6be0878a9571301ba9f08a7f995962c8.sample"
 
 [deps]
 
-source_file="res://assets/audio/realduck.wav"
-dest_files=["res://.godot/imported/realduck.wav-abb8ee7216f732283a1125cd090198e8.sample"]
+source_file="res://assets/audio/effects/objects/realduck.wav"
+dest_files=["res://.godot/imported/realduck.wav-6be0878a9571301ba9f08a7f995962c8.sample"]
 
 [params]
 

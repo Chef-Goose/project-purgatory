@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://cyecu1iy4gbcy"
-path="res://.godot/imported/Menu Up-Down.wav-43fe37345e7309252093cc8482d2a18b.sample"
+path="res://.godot/imported/Menu Up-Down.wav-441ba06cac84a1faafd29eafc29eb550.sample"
 
 [deps]
 
-source_file="res://assets/audio/Menu Up-Down.wav"
-dest_files=["res://.godot/imported/Menu Up-Down.wav-43fe37345e7309252093cc8482d2a18b.sample"]
+source_file="res://assets/audio/effects/menu/Menu Up-Down.wav"
+dest_files=["res://.godot/imported/Menu Up-Down.wav-441ba06cac84a1faafd29eafc29eb550.sample"]
 
 [params]
 
