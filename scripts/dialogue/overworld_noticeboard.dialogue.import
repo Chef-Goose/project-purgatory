@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://cj6vcwljoq1vv"
+path="res://.godot/imported/overworld_noticeboard.dialogue-80c498ab2081d71c6257072f549485a7.tres"
+
+[deps]
+
+source_file="res://scripts/dialogue/overworld_noticeboard.dialogue"
+dest_files=["res://.godot/imported/overworld_noticeboard.dialogue-80c498ab2081d71c6257072f549485a7.tres"]
+
+[params]
+
+defaults=true

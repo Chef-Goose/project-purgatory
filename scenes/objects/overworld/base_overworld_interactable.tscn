@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://ct86nvx8pn60g"]
+
+[ext_resource type="Script" uid="uid://c266fmy0q8bmt" path="res://scripts/core/overworld_interactable.gd" id="1_interactable"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_default"]
+radius = 48.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_collision"]
+radius = 48.0
+
+[node name="OverworldInteractable" type="Sprite2D" unique_id=1778160200]
+script = ExtResource("1_interactable")
+prompt_text = null
+target_scene_path = null
+dialogue_title = null
+item_id = null
+item_display_name = null
+consume_on_use = null
+queue_free_on_use = null
+
+
+[node name="InteractionArea" type="Area2D" parent="." unique_id=405895072]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea" unique_id=638075260]
+shape = SubResource("CircleShape2D_default")
+
+
+[node name="CollisionBody" type="StaticBody2D" parent="." unique_id=1234567890]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionBody"]
+shape = SubResource("CircleShape2D_collision")

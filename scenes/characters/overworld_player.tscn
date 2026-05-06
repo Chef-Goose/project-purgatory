@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://dchncshji547x"]
+
+[ext_resource type="Script" uid="uid://cgh7xr5h2j6qw" path="res://scripts/player/overworld_player.gd" id="1_player_script"]
+[ext_resource type="Texture2D" uid="uid://bq8lwlsckbm5a" path="res://assets/testing/player_forward.png" id="2_player_forward"]
+[ext_resource type="Texture2D" uid="uid://cql7jhbdg1swk" path="res://assets/testing/player_backward.png" id="3_player_backward"]
+[ext_resource type="Texture2D" uid="uid://ctd22n7t3tvuo" path="res://assets/testing/player_leftright.png" id="4_player_side"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_player"]
+radius = 72.06247
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_interaction"]
+radius = 90.0
+
+[node name="OverworldPlayer" type="CharacterBody2D" unique_id=1818575950]
+script = ExtResource("1_player_script")
+world_bounds = Rect2(-760, -430, 1520, 860)
+forward_texture = ExtResource("2_player_forward")
+backward_texture = ExtResource("3_player_backward")
+side_texture = ExtResource("4_player_side")
+
+[node name="PlayerSprite" type="Sprite2D" parent="." unique_id=854638286]
+texture = ExtResource("2_player_forward")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1658296452]
+shape = SubResource("CircleShape2D_player")
+
+[node name="InteractionArea" type="Area2D" parent="." unique_id=4417913]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea" unique_id=1640616755]
+shape = SubResource("CircleShape2D_interaction")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=968177045]
+zoom = Vector2(1.2, 1.2)

@@ -65,6 +65,11 @@ func _update_passport_info() -> void:
 	var passport_sprite := passport_info.get_node_or_null("object") as Sprite2D
 	if passport_sprite != null:
 		passport_sprite.texture = preload("res://assets/testing/Paper A.png")
+	
+	# Update the passport info display with current character data
+	var passport_display = passport_info.get_node_or_null("object/PassportDisplay") as PassportInfo
+	if passport_display and current_character:
+		passport_display.set_character_data(current_character)
 
 
 func _on_character_look_clicked() -> void:

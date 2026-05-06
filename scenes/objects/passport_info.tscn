@@ -1,10 +1,35 @@
 [gd_scene format=3 uid="uid://duglha4wp5ydx"]
 
-[ext_resource type="PackedScene" path="res://scenes/objects/game_object.tscn" id="1_base"]
-[ext_resource type="Texture2D" path="res://assets/testing/Paper A.png" id="2_paper"]
+[ext_resource type="PackedScene" uid="uid://bs8h3p8q8bnge" path="res://scenes/objects/game_object.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://benr7m8oq8esp" path="res://assets/testing/Paper A.png" id="2_paper"]
+[ext_resource type="Script" uid="uid://8du4imq0h604" path="res://scripts/core/passport_info.gd" id="3_passport"]
 
-[node name="passport_info" instance=ExtResource("1_base")]
-position = Vector2(0, 0)
+[node name="passport_info" unique_id=1725281340 instance=ExtResource("1_base")]
 
-[node name="object" parent="." index="1"]
+[node name="object" parent="." index="1" unique_id=505279869]
 texture = ExtResource("2_paper")
+
+[node name="PassportDisplay" type="Node2D" parent="object" index="0" unique_id=762075480]
+scale = Vector2(1.3333334, 1.3333334)
+script = ExtResource("3_passport")
+
+[node name="InfoLabel" type="Label" parent="object/PassportDisplay" index="0" unique_id=1351060532]
+z_index = 1
+custom_minimum_size = Vector2(120, 120)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = -60.0
+offset_right = 60.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 14
+text = "Loading..."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+clip_text = true

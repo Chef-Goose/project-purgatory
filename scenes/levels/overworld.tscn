@@ -1,36 +1,133 @@
 [gd_scene format=3 uid="uid://djdkafn4r5yj"]
 
 [ext_resource type="Script" uid="uid://ctguv7njm4map" path="res://scripts/ui/overworld_manager.gd" id="1_overworld"]
+[ext_resource type="Texture2D" uid="uid://c80ikfb13xhed" path="res://assets/testing/door.png" id="4_xr8og"]
+[ext_resource type="Texture2D" uid="uid://dmmjlsaamn0xw" path="res://assets/testing/bulletin.png" id="5_i8q5l"]
+[ext_resource type="Texture2D" uid="uid://bvf07fbpa4pen" path="res://assets/testing/cafeteria_table.png" id="7_table"]
+[ext_resource type="PackedScene" uid="uid://ct86nvx8pn60g" path="res://scenes/objects/overworld/base_overworld_interactable.tscn" id="8_base_interactable"]
+[ext_resource type="PackedScene" uid="uid://1sdpebm0q8rq" path="res://scenes/ui/dialogue_ui.tscn" id="9_dialogue_ui"]
+[ext_resource type="Resource" uid="uid://cj6vcwljoq1vv" path="res://scripts/dialogue/overworld_noticeboard.dialogue" id="10_notice_dialogue"]
+[ext_resource type="PackedScene" uid="uid://dchncshji547x" path="res://scenes/characters/overworld_player.tscn" id="11_overworld_player"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_table_collider"]
+size = Vector2(118, 66)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.08, 0.09, 0.11, 0.85)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="Overworld" type="Node2D" unique_id=428109972]
-position = Vector2(452, 263)
+position = Vector2(2, 0)
 script = ExtResource("1_overworld")
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=808239997]
-color = Color(0.2, 0.25, 0.3, 1)
-metadata/_edit_use_anchors_ = true
+[node name="World" type="Node2D" parent="." unique_id=170000001]
+
+[node name="Ground" type="Polygon2D" parent="World" unique_id=170000002]
+color = Color(0.19, 0.22, 0.2, 1)
+polygon = PackedVector2Array(-780, -460, 780, -460, 780, 460, -780, 460)
+
+[node name="GroundAccent" type="Polygon2D" parent="World" unique_id=170000003]
+color = Color(0.24, 0.26, 0.21, 1)
+polygon = PackedVector2Array(-760, -150, 760, -210, 760, 120, -760, 210)
+
+[node name="TableA" type="Sprite2D" parent="World" unique_id=170000004]
+position = Vector2(-290, -120)
+texture = ExtResource("7_table")
+
+[node name="Collision" type="StaticBody2D" parent="World/TableA" unique_id=170000030]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/TableA/Collision" unique_id=170000031]
+shape = SubResource("RectangleShape2D_table_collider")
+
+[node name="TableB" type="Sprite2D" parent="World" unique_id=170000005]
+position = Vector2(160, -40)
+texture = ExtResource("7_table")
+
+[node name="Collision" type="StaticBody2D" parent="World/TableB" unique_id=170000032]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/TableB/Collision" unique_id=170000033]
+shape = SubResource("RectangleShape2D_table_collider")
+
+[node name="TableC" type="Sprite2D" parent="World" unique_id=170000006]
+position = Vector2(-40, 220)
+texture = ExtResource("7_table")
+
+[node name="Collision" type="StaticBody2D" parent="World/TableC" unique_id=170000034]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/TableC/Collision" unique_id=170000035]
+shape = SubResource("RectangleShape2D_table_collider")
+
+[node name="LunchDoor" parent="World" unique_id=170000007 instance=ExtResource("8_base_interactable")]
+position = Vector2(650, -300)
+texture = ExtResource("4_xr8og")
+interaction_type = 0
+prompt_text = "Head to lunch break"
+target_scene_path = "res://scenes/levels/lunch_break.tscn"
+dialogue_title = "start"
+item_id = ""
+item_display_name = ""
+consume_on_use = true
+queue_free_on_use = true
+
+[node name="NoticeBoard" parent="World" unique_id=170000010 instance=ExtResource("8_base_interactable")]
+position = Vector2(-620, -260)
+texture = ExtResource("5_i8q5l")
+prompt_text = "Read the notice board"
+target_scene_path = ""
+dialogue_resource = ExtResource("10_notice_dialogue")
+dialogue_title = "start"
+item_id = ""
+item_display_name = ""
+consume_on_use = true
+queue_free_on_use = true
+
+[node name="Player" parent="World" unique_id=170000016 instance=ExtResource("11_overworld_player")]
+position = Vector2(-20, 20)
 
 [node name="UILayer" type="CanvasLayer" parent="." unique_id=1560208185]
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UILayer" unique_id=1746232532]
-offset_left = 478.0
-offset_top = 299.0
-offset_right = 1078.0
-offset_bottom = 699.0
+[node name="PromptPanel" type="PanelContainer" parent="UILayer" unique_id=170000022]
+offset_left = 20.0
+offset_top = 822.0
+offset_right = 808.0
+offset_bottom = 882.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
-[node name="Title" type="Label" parent="UILayer/VBoxContainer" unique_id=1899910617]
+[node name="PromptLabel" type="Label" parent="UILayer/PromptPanel" unique_id=170000023]
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Purgatory Overworld"
+text = "Explore and walk up to an interactable."
 
-[node name="DescriptionLabel" type="Label" parent="UILayer/VBoxContainer" unique_id=987952614]
-custom_minimum_size = Vector2(600, 0)
+[node name="InventoryPanel" type="PanelContainer" parent="UILayer" unique_id=170000024]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 460.0
+offset_bottom = 76.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="InventoryLabel" type="Label" parent="UILayer/InventoryPanel" unique_id=170000025]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "[This will be an overhead/eagle-eye view where you can explore purgatory.]
+text = "Items: (none)"
 
-For now this will be placeholder."
+[node name="StatusLabel" type="Label" parent="UILayer" unique_id=170000026]
+offset_left = 535.0
+offset_top = 22.0
+offset_right = 868.0
+offset_bottom = 53.0
+text = "Overworld"
+horizontal_alignment = 1
 
-[node name="LunchBreakButton" type="Button" parent="UILayer/VBoxContainer" unique_id=639078519]
-layout_mode = 2
-text = "Go to Lunch Break"
+[node name="HelpLabel" type="Label" parent="UILayer" unique_id=170000027]
+offset_left = 908.0
+offset_top = 22.0
+offset_right = 1571.0
+offset_bottom = 88.0
+text = "Move: Arrow Keys / WASD
+Interact: E or Enter"
+horizontal_alignment = 2
+
+[node name="DialogueUILayer" type="CanvasLayer" parent="." unique_id=170000028]
+
+[node name="DialogueUI" parent="DialogueUILayer" unique_id=170000029 instance=ExtResource("9_dialogue_ui")]
