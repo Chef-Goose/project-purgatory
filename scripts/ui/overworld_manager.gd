@@ -81,13 +81,19 @@ func _handle_interaction(target: OverworldInteractable) -> void:
 			if resolved_item_id.is_empty():
 				resolved_item_id = target.name.to_lower().replace(" ", "_")
 
-			_collected_items[resolved_item_id] = target.get_item_label()
+			var item_label = target.get_item_label()
+			
+			# Add to local and persistent inventory
+			_collected_items[resolved_item_id] = item_label
+			if day_manager != null:
+				day_manager.player_inventory[resolved_item_id] = item_label
+			
 			target.mark_used()
 			if target.consume_on_use and target.queue_free_on_use:
 				target.queue_free()
 
 			if status_label != null:
-				status_label.text = "Picked up: %s" % _collected_items[resolved_item_id]
+				status_label.text = "Picked up: %s" % item_label
 
 			_refresh_inventory_label()
 			_set_prompt_target(player.get_current_interactable() if player != null else null)

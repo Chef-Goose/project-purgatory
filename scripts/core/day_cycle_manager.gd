@@ -8,6 +8,9 @@ var characters_fated_today: Dictionary = {}  # character_id -> "heaven" or "hell
 var current_character_index: int = 0
 var game_started: bool = false
 
+## Persistent inventory across scenes
+var player_inventory: Dictionary = {}  # item_id -> display_name
+
 ## Scene references
 @export var intro_scene_path: String = "res://scenes/levels/intro.tscn"
 @export var table_scene_path: String = "res://scenes/levels/table.tscn"
@@ -96,6 +99,23 @@ func _all_characters_processed() -> bool:
 		if not character.has_been_spoken_to:
 			return false
 	return true
+
+
+## Inventory management
+func add_item_to_inventory(item_id: String, item_label: String) -> void:
+	player_inventory[item_id] = item_label
+
+
+func has_item(item_id: String) -> bool:
+	return item_id in player_inventory
+
+
+func get_item_label(item_id: String) -> String:
+	return player_inventory.get(item_id, "")
+
+
+func get_all_items() -> Dictionary:
+	return player_inventory.duplicate()
 
 
 ## Transition to end-of-day summary

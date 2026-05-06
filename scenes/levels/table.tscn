@@ -6,12 +6,9 @@
 [ext_resource type="Script" uid="uid://btugaslu0kd8w" path="res://scripts/core/table_camera_controller.gd" id="4_e4jfb"]
 [ext_resource type="PackedScene" path="res://scenes/ui/camera_return_button.tscn" id="5_634sb"]
 [ext_resource type="Script" uid="uid://cmpll84e3yxne" path="res://scripts/core/table_camera_click_zone.gd" id="5_l70u8"]
-[ext_resource type="PackedScene" uid="uid://brb5e2dwjgdem" path="res://scenes/objects/marble.tscn" id="7_dllcf"]
 [ext_resource type="PackedScene" uid="uid://xw0q526hvxl2" path="res://scenes/ui/table_hands.tscn" id="7_hf3q9"]
 [ext_resource type="PackedScene" uid="uid://d023sacoglnm8" path="res://scenes/objects/cocktail.tscn" id="8_hc0a1"]
-[ext_resource type="PackedScene" uid="uid://bhj68woo2xi24" path="res://scenes/objects/root_beer.tscn" id="8_jmqxf"]
 [ext_resource type="PackedScene" uid="uid://cu77eiqb75ldp" path="res://scenes/objects/mallard_duck.tscn" id="9_6oaw3"]
-[ext_resource type="PackedScene" uid="uid://4oh7tolg3w1p" path="res://scenes/objects/rubber_duck.tscn" id="9_hc0a1"]
 [ext_resource type="PackedScene" uid="uid://duglha4wp5ydx" path="res://scenes/objects/passport_info.tscn" id="11_passport_info"]
 [ext_resource type="PackedScene" uid="uid://b1qiybsajbqk8" path="res://scenes/characters/singleframe_table_character.tscn" id="15_fqvaw"]
 [ext_resource type="PackedScene" uid="uid://1sdpebm0q8rq" path="res://scenes/ui/dialogue_ui.tscn" id="16_osr7f"]
@@ -111,26 +108,13 @@ position = Vector2(-623, -424)
 position = Vector2(-360, -282)
 
 [node name="PassportInfo" parent="." unique_id=1338894969 instance=ExtResource("11_passport_info")]
-position = Vector2(760, 110)
-
-[node name="game_object" parent="." unique_id=1909657811 instance=ExtResource("7_dllcf")]
-position = Vector2(-40, -139)
+position = Vector2(-75, -146)
 
 [node name="Cocktail" parent="." unique_id=897456303 instance=ExtResource("8_hc0a1")]
 position = Vector2(-255, -304)
 
 [node name="MallardDuck" parent="." unique_id=2097693966 instance=ExtResource("9_6oaw3")]
 position = Vector2(232, -93)
-
-[node name="RubberDuck" parent="." unique_id=1882350937 instance=ExtResource("9_hc0a1")]
-position = Vector2(-560, -269)
-drag_hover_offset = Vector2(0, -15)
-shadow_offset = Vector2(0, 20)
-
-[node name="RootBeer" parent="." unique_id=1856310111 instance=ExtResource("8_jmqxf")]
-position = Vector2(-407, -322)
-drag_hover_offset = Vector2(0, -15)
-shadow_offset = Vector2(0, 20)
 
 [node name="CanvasLayer" parent="." unique_id=1314259860 instance=ExtResource("15_fqvaw")]
 position = Vector2(-199, -404)

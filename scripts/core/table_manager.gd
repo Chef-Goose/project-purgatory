@@ -13,6 +13,27 @@ var current_character: CharacterData
 var _awaiting_dialogue_start: bool = false
 var _dialogue_active: bool = false
 
+## Item ID to scene path mapping
+var item_scene_map: Dictionary = {
+	"rubber_duck": "res://scenes/objects/rubber_duck.tscn",
+	"marble": "res://scenes/objects/marble.tscn",
+	"cocktail": "res://scenes/objects/cocktail.tscn",
+	"mallard_duck": "res://scenes/objects/mallard_duck.tscn",
+	"root_beer": "res://scenes/objects/root_beer.tscn",
+}
+
+## Spawn positions for items (around the table)
+var item_spawn_positions: Array[Vector2] = [
+	Vector2(-100, -150),
+	Vector2(100, -150),
+	Vector2(-300, -200),
+	Vector2(300, -200),
+	Vector2(-450, -270),
+	Vector2(450, -270),
+]
+
+var _spawned_items: Array[Node] = []
+
 
 func _ready() -> void:
 	day_cycle_manager = get_node("/root/GameManager") as DayCycleManager
@@ -56,6 +77,9 @@ func _ready() -> void:
 		dialogue_ui.visible = false
 		dialogue_ui.set_process_unhandled_input(true)
 	camera_controller.set_interaction_locked(false)
+	
+	# Spawn items from the player's inventory
+	_spawn_inventory_items()
 
 
 func _update_passport_info() -> void:
@@ -119,3 +143,45 @@ func _on_fate_panel_visibility_changed(is_visible: bool) -> void:
 
 	camera_controller.set_interaction_locked(_dialogue_active or _awaiting_dialogue_start)
 	fate_ui.set_fate_button_visible(not _dialogue_active and not _awaiting_dialogue_start)
+
+
+func _spawn_inventory_items() -> void:
+	# Clear any previously spawned items
+	for item in _spawned_items:
+		if is_instance_valid(item):
+			item.queue_free()
+	_spawned_items.clear()
+	
+	if not day_cycle_manager:
+		return
+	
+	var inventory = day_cycle_manager.get_all_items()
+	if inventory.is_empty():
+		return
+	
+	var spawn_index = 0
+	for item_id: String in inventory:
+		if spawn_index >= item_spawn_positions.size():
+			push_warning("TableManager: Too many items to spawn, exceeds available spawn positions")
+			break
+		
+		if item_id not in item_scene_map:
+			push_warning("TableManager: Item '%s' not in item_scene_map" % item_id)
+			continue
+		
+		var scene_path = item_scene_map[item_id]
+		if not ResourceLoader.exists(scene_path):
+			push_warning("TableManager: Item scene does not exist: %s" % scene_path)
+			continue
+		
+		var item_scene = load(scene_path) as PackedScene
+		if item_scene == null:
+			push_error("TableManager: Failed to load item scene: %s" % scene_path)
+			continue
+		
+		var item_instance = item_scene.instantiate()
+		item_instance.position = item_spawn_positions[spawn_index]
+		add_child(item_instance)
+		_spawned_items.append(item_instance)
+		
+		spawn_index += 1

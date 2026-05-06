@@ -3,9 +3,13 @@
 [ext_resource type="Script" uid="uid://ctguv7njm4map" path="res://scripts/ui/overworld_manager.gd" id="1_overworld"]
 [ext_resource type="Texture2D" uid="uid://c80ikfb13xhed" path="res://assets/testing/door.png" id="4_xr8og"]
 [ext_resource type="Texture2D" uid="uid://dmmjlsaamn0xw" path="res://assets/testing/bulletin.png" id="5_i8q5l"]
+[ext_resource type="Texture2D" uid="uid://dqtyavp8aihfn" path="res://assets/art/objects/rubberduckplaceholder.png" id="7_i8q5l"]
 [ext_resource type="Texture2D" uid="uid://bvf07fbpa4pen" path="res://assets/testing/cafeteria_table.png" id="7_table"]
 [ext_resource type="PackedScene" uid="uid://ct86nvx8pn60g" path="res://scenes/objects/overworld/base_overworld_interactable.tscn" id="8_base_interactable"]
+[ext_resource type="AudioStream" uid="uid://cxiwfjim2vnna" path="res://assets/audio/effects/objects/rubberduckgrab.wav" id="8_n2fas"]
 [ext_resource type="PackedScene" uid="uid://1sdpebm0q8rq" path="res://scenes/ui/dialogue_ui.tscn" id="9_dialogue_ui"]
+[ext_resource type="Texture2D" uid="uid://cdnw4u6kcvfg1" path="res://assets/art/objects/marbleplaceholder.png" id="9_s5icx"]
+[ext_resource type="Texture2D" uid="uid://bfle20w7y7j5n" path="res://assets/art/objects/rootbeerplaceholder.png" id="10_ekc16"]
 [ext_resource type="Resource" uid="uid://cj6vcwljoq1vv" path="res://scripts/dialogue/overworld_noticeboard.dialogue" id="10_notice_dialogue"]
 [ext_resource type="PackedScene" uid="uid://dchncshji547x" path="res://scenes/characters/overworld_player.tscn" id="11_overworld_player"]
 
@@ -83,6 +87,46 @@ item_id = ""
 item_display_name = ""
 consume_on_use = true
 queue_free_on_use = true
+
+[node name="TestDeskItem" parent="World" unique_id=170000011 instance=ExtResource("8_base_interactable")]
+position = Vector2(400, 100)
+texture = ExtResource("7_i8q5l")
+interaction_type = 2
+prompt_text = "Pick up Duck"
+target_scene_path = ""
+dialogue_title = "start"
+item_id = "rubber_duck"
+item_display_name = "Rubber Duck"
+consume_on_use = true
+queue_free_on_use = true
+collision_enabled = false
+pickup_sound = ExtResource("8_n2fas")
+
+[node name="MarbleItem" parent="World" unique_id=170000012 instance=ExtResource("8_base_interactable")]
+position = Vector2(300, -200)
+texture = ExtResource("9_s5icx")
+interaction_type = 2
+prompt_text = "Pick up marble"
+target_scene_path = ""
+dialogue_title = "start"
+item_id = "marble"
+item_display_name = "Marble"
+consume_on_use = true
+queue_free_on_use = true
+collision_enabled = false
+
+[node name="RootBeerItem" parent="World" unique_id=170000015 instance=ExtResource("8_base_interactable")]
+position = Vector2(-300, 300)
+texture = ExtResource("10_ekc16")
+interaction_type = 2
+prompt_text = "Pick up root beer"
+target_scene_path = ""
+dialogue_title = "start"
+item_id = "root_beer"
+item_display_name = "Root Beer"
+consume_on_use = true
+queue_free_on_use = true
+collision_enabled = false
 
 [node name="Player" parent="World" unique_id=170000016 instance=ExtResource("11_overworld_player")]
 position = Vector2(-20, 20)

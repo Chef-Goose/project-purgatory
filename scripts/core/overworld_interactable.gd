@@ -20,6 +20,7 @@ enum InteractionType {
 @export var consume_on_use: bool = true
 @export var queue_free_on_use: bool = true
 @export var collision_enabled: bool = true
+@export var pickup_sound: AudioStream
 
 var has_been_used: bool = false
 
@@ -74,6 +75,24 @@ func get_item_label() -> String:
 
 func mark_used() -> void:
 	has_been_used = true
+	play_pickup_sound()
 	if consume_on_use:
 		set_deferred("monitoring", false)
 		set_deferred("monitorable", false)
+
+
+func play_pickup_sound() -> void:
+	if pickup_sound == null:
+		return
+	
+	var audio_player := AudioStreamPlayer.new()
+	audio_player.stream = pickup_sound
+	audio_player.volume_db = 0
+	
+	# Parent to the scene root so it doesn't get freed with the interactable
+	get_tree().root.add_child(audio_player)
+	audio_player.play()
+	
+	# Cleanup after sound finishes
+	await audio_player.finished
+	audio_player.queue_free()
