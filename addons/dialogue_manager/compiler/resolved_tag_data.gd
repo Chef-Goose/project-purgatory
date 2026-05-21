@@ -16,7 +16,12 @@ func _init(text: String) -> void:
 	var tag_matches: Array[RegExMatch] = regex.TAGS_REGEX.search_all(text)
 	for tag_match in tag_matches:
 		text = text.replace(tag_match.get_string(), "")
-		var tags = tag_match.get_string().replace("[#", "").replace("]", "").replace(", ", ",").split(",")
+		var tag_text: String = tag_match.get_string().replace("[#", "").replace("]", "").strip_edges()
+		if tag_text.begins_with("cast="):
+			if not tag_text in resolved_tags:
+				resolved_tags.append(tag_text)
+			continue
+		var tags = tag_text.replace(", ", ",").split(",")
 		for tag in tags:
 			tag = tag.replace("#", "")
 			if not tag in resolved_tags:

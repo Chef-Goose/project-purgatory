@@ -2,6 +2,7 @@ extends Node
 class_name DayCycleManager
 
 signal fate_assigned(character: CharacterData, fate: String)
+signal current_character_changed(character: CharacterData)
 
 ## Game state
 var current_day: int = 1
@@ -85,7 +86,7 @@ func on_character_conversation_complete(character: CharacterData) -> void:
 	else:
 		# Move to next character
 		current_character_index += 1
-		_load_table_scene()
+		current_character_changed.emit(get_current_character())
 
 
 ## Called by the fate decision UI

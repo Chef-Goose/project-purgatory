@@ -84,6 +84,7 @@ var outOfBoundsDropTarget: Vector2 = Vector2.ZERO
 var outOfBoundsDropVelocity: Vector2 = Vector2.ZERO
 var originalScale: Vector2 = Vector2.ONE
 var defaultZIndex: int = 0
+var transition_locked: bool = false
 
 # Audio playback
 var audioPlayer: AudioStreamPlayer
@@ -488,6 +489,24 @@ func _force_drop_from_hand() -> void:
 func force_drop_from_hand() -> void:
 	_force_drop_from_hand()
 
+
+func begin_transition_fade() -> void:
+	transition_locked = true
+	_stop_placement_tween()
+	dragging = false
+	releasedDragThisFrame = false
+	tableSlideVelocity = Vector2.ZERO
+	outOfBoundsDropActive = false
+	outOfBoundsDropVelocity = Vector2.ZERO
+	if thisObjectInRightHand:
+		_release_hand(HAND_RIGHT)
+		thisObjectInRightHand = false
+	if thisObjectInLeftHand:
+		_release_hand(HAND_LEFT)
+		thisObjectInLeftHand = false
+	objectState = states.onTable
+	z_index = defaultZIndex
+
 func _stop_placement_tween(clear_target: bool = true) -> void:
 	if placementTween != null and placementTween.is_valid():
 		placementTween.kill()
@@ -593,6 +612,9 @@ func _on_area_2d_mouse_shape_exited(_shape_idx: int) -> void:
 	_set_cursor_hovering(false)
 
 func _physics_process(delta: float) -> void:
+	if transition_locked:
+		return
+
 	releasedDragThisFrame = false
 	slideAudioActiveThisFrame = false
 	var previous_object_position = global_position
@@ -655,6 +677,9 @@ func _stop_slide_loop_audio() -> void:
 		slideLoopPlayer.stop()
 
 func _process(_delta: float) -> void:
+	if transition_locked:
+		return
+
 	if dragging:
 		return
 

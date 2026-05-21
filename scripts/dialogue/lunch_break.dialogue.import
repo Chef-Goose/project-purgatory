@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://cirqrsu1ietb8"
+path="res://.godot/imported/lunch_break.dialogue-1950dbdc8f1d804f4622b9d25778f8cb.tres"
+
+[deps]
+
+source_file="res://scripts/dialogue/lunch_break.dialogue"
+dest_files=["res://.godot/imported/lunch_break.dialogue-1950dbdc8f1d804f4622b9d25778f8cb.tres"]
+
+[params]
+
+defaults=true

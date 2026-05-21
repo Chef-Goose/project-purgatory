@@ -11,7 +11,8 @@ signal dialogue_finished
 @export var will_block_other_input: bool = true
 @export var force_scroll_tag: String = "force_scroll"
 @export_range(0.0, 2.0, 0.01) var min_advance_delay_seconds: float = 0.2
-@export var portrait_node_path: NodePath
+@export var portrait_node_paths: Dictionary = {} # map lowercased speaker name -> NodePath
+@export var cast_slot_paths: Array[NodePath] = []
 @export var mood_tag_name: String = "mood"
 @export var scroll_speed_tag_name: String = "scroll_speed"
 @export var auto_advance_tag_name: String = "auto_advance"
@@ -28,7 +29,6 @@ signal dialogue_finished
 @onready var progress: Polygon2D = $Control/Polygon2D
 @onready var responses_menu: VBoxContainer = $ResponsesMenu
 @onready var response_template: Button = $ResponsesMenu/ResponseTemplate
-@onready var portrait: CharacterPortrait = _resolve_portrait()
 
 var dialogue_line: DialogueLine
 var temporary_game_states: Array = []
@@ -36,6 +36,7 @@ var is_waiting_for_input: bool = false
 var _advance_unlock_time_msec: int = 0
 var _portrait_sets_by_character_name: Dictionary = {}
 var _active_portrait_speaker_name: String = ""
+var _last_active_portrait_node: CharacterPortrait = null
 var _default_seconds_per_step: float = 0.03
 
 
@@ -48,8 +49,6 @@ func _ready() -> void:
 	_clear_responses()
 	_build_portrait_set_lookup()
 	_default_seconds_per_step = dialogue_label.seconds_per_step
-	if portrait == null:
-		push_warning("DialogueUI could not resolve a CharacterPortrait. Set portrait_node_path on DialogueUI or add a CharacterPortrait node to the scene tree.")
 
 	visible = false
 	progress.visible = false
@@ -61,15 +60,15 @@ func _ready() -> void:
 		start()
 
 
-func _resolve_portrait() -> CharacterPortrait:
-	if not portrait_node_path.is_empty():
-		var portrait_from_path: CharacterPortrait = get_node_or_null(portrait_node_path) as CharacterPortrait
-		if portrait_from_path != null:
-			return portrait_from_path
-
-	var portrait_from_group: CharacterPortrait = get_tree().get_first_node_in_group("character_portrait") as CharacterPortrait
-	if portrait_from_group != null:
-		return portrait_from_group
+func _resolve_portrait_for_speaker(speaker_name: String) -> CharacterPortrait:
+	var key: String = speaker_name.strip_edges().to_lower()
+	# Prefer explicit mapping set on the DialogueUI instance
+	if portrait_node_paths.has(key):
+		var path_val = portrait_node_paths[key]
+		if typeof(path_val) == TYPE_NODE_PATH or typeof(path_val) == TYPE_STRING:
+			var node = get_node_or_null(path_val) as CharacterPortrait
+			if node != null:
+				return node
 
 	return null
 
@@ -146,6 +145,7 @@ func _apply_dialogue_line() -> void:
 	speaker_box.visible = not dialogue_line.character.is_empty()
 	speaker_label.text = tr(dialogue_line.character, "dialogue")
 	_clear_responses()
+	_apply_cast_for_line()
 	var has_explicit_mood_tag: bool = _apply_portrait_for_line()
 	_apply_scroll_speed_for_line()
 
@@ -154,8 +154,8 @@ func _apply_dialogue_line() -> void:
 	if not dialogue_line.text.is_empty():
 		dialogue_label.type_out()
 		await dialogue_label.finished_typing
-		if portrait != null and not has_explicit_mood_tag:
-			portrait.set_mood_by_name(idle_mood_name)
+		if _last_active_portrait_node != null and is_instance_valid(_last_active_portrait_node) and not has_explicit_mood_tag:
+			_last_active_portrait_node.set_mood_by_name(idle_mood_name)
 
 	if dialogue_line.responses.size() > 0:
 		_show_responses(dialogue_line.responses)
@@ -175,10 +175,44 @@ func _apply_dialogue_line() -> void:
 	is_waiting_for_input = true
 
 
-func _apply_portrait_for_line() -> bool:
-	if portrait == null or not is_instance_valid(dialogue_line):
+func _apply_cast_for_line() -> bool:
+	if not is_instance_valid(dialogue_line):
 		return false
 
+	if not dialogue_line.has_tag("cast"):
+		return false
+
+	if cast_slot_paths.is_empty():
+		return false
+
+	var raw_cast: String = dialogue_line.get_tag_value("cast").strip_edges()
+	if raw_cast.is_empty():
+		_clear_cast_slots()
+		return true
+
+	var cast_names: PackedStringArray = raw_cast.split(",", true)
+	_apply_cast_names_to_slots(cast_names)
+	return true
+
+
+func _apply_portrait_for_line() -> bool:
+	if not is_instance_valid(dialogue_line):
+		return false
+
+	var normalized_name: String = dialogue_line.character.strip_edges().to_lower()
+	if normalized_name.is_empty():
+		return false
+
+	# Resolve the portrait node for this speaker
+	var target_portrait: CharacterPortrait = _resolve_portrait_for_speaker(dialogue_line.character)
+	if target_portrait == null:
+		return false
+
+	# If we switched speakers, reset the previous portrait to idle
+	if _last_active_portrait_node != null and is_instance_valid(_last_active_portrait_node) and _last_active_portrait_node != target_portrait:
+		_last_active_portrait_node.set_mood_by_name(idle_mood_name)
+
+	# Ensure the right textures are applied for this speaker
 	_apply_portrait_set_for_speaker(dialogue_line.character)
 
 	var has_explicit_mood_tag: bool = dialogue_line.has_tag(mood_tag_name)
@@ -192,8 +226,57 @@ func _apply_portrait_for_line() -> bool:
 		else:
 			mood_name = idle_mood_name
 
-	portrait.set_mood_by_name(mood_name)
+	# Apply mood to the resolved portrait node
+	target_portrait.set_mood_by_name(mood_name)
+
+	_last_active_portrait_node = target_portrait
+	_active_portrait_speaker_name = normalized_name
+
 	return has_explicit_mood_tag
+
+
+func _apply_cast_names_to_slots(cast_names: PackedStringArray) -> void:
+	if cast_slot_paths.is_empty():
+		return
+
+	var new_mapping: Dictionary = {}
+	for index in range(cast_slot_paths.size()):
+		var slot_path: NodePath = cast_slot_paths[index]
+		if slot_path.is_empty():
+			continue
+
+		var slot_node: CharacterPortrait = get_node_or_null(slot_path) as CharacterPortrait
+		if slot_node == null:
+			continue
+
+		var speaker_name: String = ""
+		if index < cast_names.size():
+			speaker_name = str(cast_names[index]).strip_edges()
+
+		if speaker_name.is_empty():
+			slot_node.visible = false
+			continue
+
+		var normalized_name: String = speaker_name.to_lower()
+		new_mapping[normalized_name] = slot_path
+		slot_node.visible = true
+
+	portrait_node_paths = new_mapping
+
+
+func _clear_cast_slots() -> void:
+	if cast_slot_paths.is_empty():
+		return
+
+	for slot_path: NodePath in cast_slot_paths:
+		if slot_path.is_empty():
+			continue
+
+		var slot_node: CharacterPortrait = get_node_or_null(slot_path) as CharacterPortrait
+		if slot_node != null:
+			slot_node.visible = false
+
+	portrait_node_paths.clear()
 
 
 func _build_portrait_set_lookup() -> void:
@@ -217,9 +300,6 @@ func _build_portrait_set_lookup() -> void:
 
 
 func _apply_portrait_set_for_speaker(speaker_name: String) -> void:
-	if portrait == null:
-		return
-
 	var normalized_name: String = speaker_name.strip_edges().to_lower()
 	if normalized_name.is_empty():
 		return
@@ -234,7 +314,12 @@ func _apply_portrait_set_for_speaker(speaker_name: String) -> void:
 	if portrait_set == null or portrait_set.idle_texture == null:
 		return
 
-	portrait.set_texture_set(
+	# Apply textures to the portrait node resolved for this speaker
+	var target_portrait: CharacterPortrait = _resolve_portrait_for_speaker(speaker_name)
+	if target_portrait == null:
+		return
+
+	target_portrait.set_texture_set(
 		portrait_set.idle_texture,
 		portrait_set.talking_texture,
 		portrait_set.angry_texture,

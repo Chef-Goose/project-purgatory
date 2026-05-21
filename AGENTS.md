@@ -33,6 +33,9 @@
 - When touching gameplay scripts, keep exported properties, node paths, and scene wiring consistent with the current setup.
 - If a change affects story structure, dialogue flow, or progression, check whether it should live in a shared parent scene or reusable system instead of a one-off implementation.
 
+## Dialogue Control
+- Most in-scene dialogue controls should be authored and driven via the dialogue manager: scene composition, cast placement, portrait expressions, and simple sequencing belong in the dialogue script rather than hard-coded per-scene logic. When building new features, design them so a writer or designer can control behavior by editing the dialogue script (use tags, branches, and metadata), not by adding bespoke scene scripts.
+
 ## Useful Areas
 - `scripts/core/` contains shared gameplay logic.
 - `scenes/` contains gameplay and UI scenes.

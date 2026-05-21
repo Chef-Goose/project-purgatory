@@ -18,6 +18,7 @@ signal panel_visibility_changed(is_visible: bool)
 var day_cycle_manager: DayCycleManager
 var current_character: CharacterData
 var is_panel_visible: bool = false
+var _transition_in_progress: bool = false
 
 
 func _ready() -> void:
@@ -92,18 +93,27 @@ func is_panel_open() -> bool:
 
 func _on_heaven_pressed() -> void:
 	if current_character and day_cycle_manager:
-		day_cycle_manager.assign_fate(current_character, "heaven")
-		_on_fate_chosen()
+		_on_fate_chosen("heaven")
 
 
 func _on_hell_pressed() -> void:
 	if current_character and day_cycle_manager:
-		day_cycle_manager.assign_fate(current_character, "hell")
-		_on_fate_chosen()
+		_on_fate_chosen("hell")
 
 
-func _on_fate_chosen() -> void:
+func _on_fate_chosen(fate: String) -> void:
+	if _transition_in_progress or not current_character or not day_cycle_manager:
+		return
+
+	_transition_in_progress = true
+	day_cycle_manager.assign_fate(current_character, fate)
 	hide_panel()
+
+	var transition_delay := 1.40 if fate == "heaven" else 1.20
+	await get_tree().create_timer(transition_delay).timeout
+
 	# Mark character as processed and move to next character
 	if day_cycle_manager:
 		day_cycle_manager.on_character_conversation_complete(current_character)
+
+	_transition_in_progress = false

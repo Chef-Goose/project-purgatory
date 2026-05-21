@@ -1,42 +1,147 @@
 [gd_scene format=3 uid="uid://d3phh3p36h7"]
 
 [ext_resource type="Script" uid="uid://qlm03yhmumwn" path="res://scripts/ui/lunch_break_manager.gd" id="1_lunch"]
+[ext_resource type="PackedScene" uid="uid://1sdpebm0q8rq" path="res://scenes/ui/dialogue_ui.tscn" id="2_dialogue_ui"]
+[ext_resource type="PackedScene" uid="uid://c4cgp0bswbx4y" path="res://scenes/characters/singleframe_character.tscn" id="3_character_portrait"]
+[ext_resource type="Texture2D" uid="uid://fb8v45th2i8a" path="res://assets/art/environments/Desk_RD1.png" id="4_lunch_bg"]
+[ext_resource type="Script" uid="uid://cvejm24djkvdm" path="res://scripts/core/character_portrait_set.gd" id="5_portrait_set"]
+[ext_resource type="Texture2D" uid="uid://bb0i4ncloxl67" path="res://assets/art/characters/SampleSam/samplesamidle.png" id="6_god_idle"]
+[ext_resource type="Texture2D" uid="uid://bfeo01pqg7kj5" path="res://assets/art/characters/SampleSam/samplesamtalking.png" id="7_god_talking"]
+[ext_resource type="Texture2D" uid="uid://c10jmvic3hfj4" path="res://assets/art/characters/SampleSam/samplesamangry.png" id="8_god_angry"]
+[ext_resource type="Texture2D" uid="uid://bflvwlebg4np" path="res://assets/art/characters/SampleSam/samplesamsad.png" id="9_god_sad"]
+[ext_resource type="Resource" uid="uid://cirqrsu1ietb8" path="res://scripts/dialogue/lunch_break.dialogue" id="10_lunch_dialogue"]
+[ext_resource type="Script" uid="uid://btvkyejr884h2" path="res://scripts/ui/cast_slot.gd" id="11_cast_slot"]
+
+[sub_resource type="Resource" id="Resource_left_slot"]
+script = ExtResource("11_cast_slot")
+node_path = NodePath("CharacterLayer/LeftCharacter")
+default_speaker = "Derrick"
+label = "Left"
+
+[sub_resource type="Resource" id="Resource_center_slot"]
+script = ExtResource("11_cast_slot")
+node_path = NodePath("CharacterLayer/CenterCharacter")
+default_speaker = "Wayne"
+label = "Center"
+
+[sub_resource type="Resource" id="Resource_right_slot"]
+script = ExtResource("11_cast_slot")
+node_path = NodePath("CharacterLayer/RightCharacter")
+default_speaker = "Pepsi Man"
+label = "Right"
+
+[sub_resource type="Resource" id="Resource_wayne_portrait"]
+script = ExtResource("5_portrait_set")
+speaker_name = "Wayne"
+speaker_aliases = ["Wayne"]
+idle_texture = ExtResource("6_god_idle")
+talking_texture = ExtResource("7_god_talking")
+angry_texture = ExtResource("8_god_angry")
+sad_texture = ExtResource("9_god_sad")
+
+[sub_resource type="Resource" id="Resource_pepsi_portrait"]
+script = ExtResource("5_portrait_set")
+speaker_name = "Pepsi Man"
+speaker_aliases = ["Pepsi", "Pepsi Man"]
+idle_texture = ExtResource("6_god_idle")
+talking_texture = ExtResource("7_god_talking")
+angry_texture = ExtResource("8_god_angry")
+sad_texture = ExtResource("9_god_sad")
+
+[sub_resource type="Resource" id="Resource_derrick_portrait"]
+script = ExtResource("5_portrait_set")
+speaker_name = "Derrick"
+speaker_aliases = ["Derrick"]
+idle_texture = ExtResource("6_god_idle")
+talking_texture = ExtResource("7_god_talking")
+angry_texture = ExtResource("8_god_angry")
+sad_texture = ExtResource("9_god_sad")
+
+[sub_resource type="Resource" id="Resource_god_portrait"]
+script = ExtResource("5_portrait_set")
+speaker_name = "God"
+speaker_aliases = ["The Voice", "God"]
+idle_texture = ExtResource("6_god_idle")
+talking_texture = ExtResource("7_god_talking")
+angry_texture = ExtResource("8_god_angry")
+sad_texture = ExtResource("9_god_sad")
 
 [node name="LunchBreak" type="Control" unique_id=623252301]
 layout_mode = 3
-anchors_preset = 0
-offset_left = 599.0
-offset_top = 408.0
-offset_right = 599.0
-offset_bottom = 408.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_lunch")
+dialogue_ui_path = NodePath("DialogueUILayer/DialogueUI")
+continue_button_path = NodePath("DialogueUILayer/ContinueButton")
+day_label_path = NodePath("HUDLayer/DayLabel")
+cast_slots = Array[ExtResource("11_cast_slot")]([SubResource("Resource_left_slot"), SubResource("Resource_center_slot"), SubResource("Resource_right_slot")])
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=1825631161]
-layout_mode = 1
-color = Color(0.1, 0.15, 0.2, 1)
+[node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=1825631161]
+layer = -10
 
-[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1082107719]
-layout_mode = 1
-offset_left = -300.0
-offset_top = -150.0
-offset_right = 300.0
-offset_bottom = 150.0
+[node name="Background" type="TextureRect" parent="BackgroundLayer" unique_id=1082107719]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_lunch_bg")
+stretch_mode = 6
 
-[node name="Title" type="Label" parent="VBoxContainer" unique_id=1799154254]
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Lunch Break"
+[node name="BackdropTint" type="ColorRect" parent="BackgroundLayer" unique_id=1799154254]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.06, 0.08, 0.45)
 
-[node name="DialogueLabel" type="Label" parent="VBoxContainer" unique_id=822794357]
-custom_minimum_size = Vector2(600, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "You take a moment to reflect on your decisions...
+[node name="CharacterLayer" type="CanvasLayer" parent="." unique_id=822794357]
+layer = 0
 
-[In the full game, God will have a dialogue with you here about the day's events and provide hints about the morality guide.]
+[node name="LeftCharacter" parent="CharacterLayer" unique_id=232399080 instance=ExtResource("3_character_portrait")]
+position = Vector2(320, 760)
+scale = Vector2(1.05, 1.05)
 
-Click [Next Day] to begin tomorrow."
+[node name="RightCharacter" parent="CharacterLayer" unique_id=232399082 instance=ExtResource("3_character_portrait")]
+position = Vector2(1320, 760)
+scale = Vector2(1.05, 1.05)
 
-[node name="NextDayButton" type="Button" parent="VBoxContainer" unique_id=232399080]
-layout_mode = 2
-text = "Next Day"
+[node name="CenterCharacter" parent="CharacterLayer" unique_id=232399081 instance=ExtResource("3_character_portrait")]
+position = Vector2(810, 740)
+scale = Vector2(1.18, 1.18)
+
+[node name="HUDLayer" type="CanvasLayer" parent="." unique_id=1122334455]
+layer = 5
+
+[node name="DayLabel" type="Label" parent="HUDLayer" unique_id=1122334456]
+offset_left = 48.0
+offset_top = 36.0
+offset_right = 444.0
+offset_bottom = 84.0
+theme_override_font_sizes/font_size = 28
+text = "Lunch Break - Day 1"
+
+[node name="DialogueUILayer" type="CanvasLayer" parent="." unique_id=1122334457]
+layer = 10
+
+[node name="DialogueUI" parent="DialogueUILayer" unique_id=1122334458 instance=ExtResource("2_dialogue_ui")]
+dialogue_resource = ExtResource("10_lunch_dialogue")
+character_portrait_sets = Array[ExtResource("5_portrait_set")]([SubResource("Resource_wayne_portrait"), SubResource("Resource_pepsi_portrait"), SubResource("Resource_derrick_portrait"), SubResource("Resource_god_portrait")])
+
+[node name="ContinueButton" type="Button" parent="DialogueUILayer" unique_id=1122334459]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -88.0
+offset_right = 160.0
+offset_bottom = -32.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Start Next Day"
