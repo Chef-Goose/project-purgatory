@@ -1,6 +1,8 @@
 extends Node
 class_name DayCycleManager
 
+signal fate_assigned(character: CharacterData, fate: String)
+
 ## Game state
 var current_day: int = 1
 var characters_for_today: Array[CharacterData] = []
@@ -91,6 +93,7 @@ func assign_fate(character: CharacterData, fate: String) -> void:
 	if fate in ["heaven", "hell"]:
 		character.fate_assigned = fate
 		characters_fated_today[character.character_id] = fate
+		fate_assigned.emit(character, fate)
 
 
 ## Check if all characters have been spoken to

@@ -40,6 +40,8 @@ func _ready() -> void:
 	if not day_cycle_manager:
 		push_error("TableManager: GameManager autoload not found. Did you set it up in Project Settings → Autoload?")
 		return
+	if day_cycle_manager.has_signal("fate_assigned"):
+		day_cycle_manager.fate_assigned.connect(_on_fate_assigned)
 	
 	if not fate_ui:
 		push_error("TableManager: FateDecisionUI not found in scene tree")
@@ -94,6 +96,8 @@ func _update_passport_info() -> void:
 	var passport_display = passport_info.get_node_or_null("object/PassportDisplay") as PassportInfo
 	if passport_display and current_character:
 		passport_display.set_character_data(current_character)
+		if passport_display.has_method("force_drop_from_hand"):
+			passport_display.call("force_drop_from_hand")
 
 
 func _on_character_look_clicked() -> void:
@@ -143,6 +147,14 @@ func _on_fate_panel_visibility_changed(is_visible: bool) -> void:
 
 	camera_controller.set_interaction_locked(_dialogue_active or _awaiting_dialogue_start)
 	fate_ui.set_fate_button_visible(not _dialogue_active and not _awaiting_dialogue_start)
+
+
+func _on_fate_assigned(character: CharacterData, _fate: String) -> void:
+	if character != current_character:
+		return
+
+	if passport_info != null and passport_info.has_method("force_drop_from_hand"):
+		passport_info.call("force_drop_from_hand")
 
 
 func _spawn_inventory_items() -> void:

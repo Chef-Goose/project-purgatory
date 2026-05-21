@@ -484,6 +484,10 @@ func _force_drop_from_hand() -> void:
 	tableDropPosition = _aligned_drop_target_on_table(global_position)
 	hasTableDropTarget = true
 
+
+func force_drop_from_hand() -> void:
+	_force_drop_from_hand()
+
 func _stop_placement_tween(clear_target: bool = true) -> void:
 	if placementTween != null and placementTween.is_valid():
 		placementTween.kill()
