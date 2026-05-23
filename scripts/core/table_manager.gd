@@ -19,8 +19,6 @@ var _awaiting_dialogue_start: bool = false
 var _dialogue_active: bool = false
 var _character_entry_tween: Tween
 var _character_exit_tween: Tween
-var _passport_entry_tween: Tween
-var _passport_exit_tween: Tween
 var _character_base_position: Vector2 = Vector2.ZERO
 var _passport_base_position: Vector2 = Vector2.ZERO
 
@@ -28,8 +26,7 @@ const CHARACTER_ENTRY_FADE_DURATION := 1.05
 const CHARACTER_HEAVEN_EXIT_FADE_DURATION := 0.65
 const CHARACTER_HELL_EXIT_DURATION := 0.18
 const CHARACTER_HELL_DROP_DISTANCE := 120.0
-const PASSPORT_ENTRY_DURATION := 1.10
-const PASSPORT_EXIT_DURATION := 1.00
+const PASSPORT_ENTRY_DURATION := CHARACTER_ENTRY_FADE_DURATION
 
 ## Item ID to scene path mapping
 var item_scene_map: Dictionary = {
@@ -138,8 +135,6 @@ func _spawn_passport_node() -> void:
 	var passport_parent: Node = self
 	if passport_info != null and is_instance_valid(passport_info):
 		passport_parent = passport_info.get_parent()
-		if passport_info.has_method("force_drop_from_hand"):
-			passport_info.call("force_drop_from_hand")
 		passport_info.queue_free()
 
 	var new_passport = passport_scene.instantiate() as Node2D
@@ -149,7 +144,6 @@ func _spawn_passport_node() -> void:
 
 	passport_parent.add_child(new_passport)
 	new_passport.position = _passport_base_position
-	new_passport.modulate.a = 0.0
 	passport_info = new_passport
 	_animate_passport_entry(new_passport)
 
@@ -158,31 +152,24 @@ func _animate_passport_entry(passport_node: Node2D) -> void:
 	if passport_node == null:
 		return
 
-	if _passport_entry_tween != null and _passport_entry_tween.is_valid():
-		_passport_entry_tween.kill()
+	if not passport_node.has_method("begin_entry_fade"):
+		return
 
-	passport_node.modulate.a = 0.0
-
-	_passport_entry_tween = create_tween()
-	_passport_entry_tween.set_trans(Tween.TRANS_SINE)
-	_passport_entry_tween.set_ease(Tween.EASE_OUT)
-	_passport_entry_tween.tween_property(passport_node, "modulate:a", 1.0, PASSPORT_ENTRY_DURATION)
+	passport_node.call_deferred("begin_entry_fade", PASSPORT_ENTRY_DURATION)
 
 
-func _animate_passport_exit() -> void:
+func _animate_passport_exit(fate: String) -> void:
 	if passport_info == null or not is_instance_valid(passport_info):
 		return
 
-	if _passport_entry_tween != null and _passport_entry_tween.is_valid():
-		_passport_entry_tween.kill()
+	var exit_duration := CHARACTER_HEAVEN_EXIT_FADE_DURATION
+	if fate == "hell":
+		exit_duration = CHARACTER_HELL_EXIT_DURATION
 
-	if _passport_exit_tween != null and _passport_exit_tween.is_valid():
-		_passport_exit_tween.kill()
+	if not passport_info.has_method("begin_transition_fade"):
+		return
 
-	_passport_exit_tween = create_tween()
-	_passport_exit_tween.set_trans(Tween.TRANS_SINE)
-	_passport_exit_tween.set_ease(Tween.EASE_IN)
-	_passport_exit_tween.tween_property(passport_info, "modulate:a", 0.0, PASSPORT_EXIT_DURATION)
+	passport_info.call("begin_transition_fade", exit_duration)
 
 
 func _animate_character_exit(fate: String) -> void:
@@ -273,9 +260,7 @@ func _on_fate_assigned(character: CharacterData, fate: String) -> void:
 	if character != current_character:
 		return
 
-	if passport_info != null and passport_info.has_method("begin_transition_fade"):
-		passport_info.call("begin_transition_fade")
-	_animate_passport_exit()
+	_animate_passport_exit(fate)
 	_animate_character_exit(fate)
 
 

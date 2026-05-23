@@ -93,6 +93,7 @@ var audioPlayerCursor: int = 0
 var slideLoopPlayer: AudioStreamPlayer
 var wasSliding: bool = false
 var slideAudioActiveThisFrame: bool = false
+var _transition_fade_tween: Tween
 
 enum floating {overTable, overLeftHand, overRightHand, overNothing}
 var objectFloating : floating = floating.overTable
@@ -468,12 +469,12 @@ func _is_hand_anchor_active(hand_anchor: Node2D, hand_position: Vector2) -> bool
 	return _is_world_position_on_screen(hand_position, hand_drop_screen_margin)
 
 func _force_drop_from_hand() -> void:
-	var was_in_hand = thisObjectInRightHand or thisObjectInLeftHand
-	if thisObjectInRightHand:
+	var was_in_hand = thisObjectInRightHand or thisObjectInLeftHand or objectState == states.inRightHand or objectState == states.inLeftHand
+	if thisObjectInRightHand or objectState == states.inRightHand:
 		_release_hand(HAND_RIGHT)
 		thisObjectInRightHand = false
 
-	if thisObjectInLeftHand:
+	if thisObjectInLeftHand or objectState == states.inLeftHand:
 		_release_hand(HAND_LEFT)
 		thisObjectInLeftHand = false
 
@@ -490,7 +491,25 @@ func force_drop_from_hand() -> void:
 	_force_drop_from_hand()
 
 
-func begin_transition_fade() -> void:
+func begin_entry_fade(duration: float = 0.0) -> void:
+	if _transition_fade_tween != null and _transition_fade_tween.is_valid():
+		_transition_fade_tween.kill()
+
+	transition_locked = true
+	modulate.a = 0.0
+
+	if duration <= 0.0:
+		transition_locked = false
+		return
+
+	_transition_fade_tween = create_tween()
+	_transition_fade_tween.set_trans(Tween.TRANS_SINE)
+	_transition_fade_tween.set_ease(Tween.EASE_OUT)
+	_transition_fade_tween.tween_property(self, "modulate:a", 1.0, duration)
+	_transition_fade_tween.finished.connect(func(): transition_locked = false)
+
+
+func begin_transition_fade(duration: float = 0.0) -> void:
 	transition_locked = true
 	_stop_placement_tween()
 	dragging = false
@@ -498,14 +517,21 @@ func begin_transition_fade() -> void:
 	tableSlideVelocity = Vector2.ZERO
 	outOfBoundsDropActive = false
 	outOfBoundsDropVelocity = Vector2.ZERO
-	if thisObjectInRightHand:
-		_release_hand(HAND_RIGHT)
-		thisObjectInRightHand = false
-	if thisObjectInLeftHand:
-		_release_hand(HAND_LEFT)
-		thisObjectInLeftHand = false
+	_force_drop_from_hand()
 	objectState = states.onTable
 	z_index = defaultZIndex
+
+	if _transition_fade_tween != null and _transition_fade_tween.is_valid():
+		_transition_fade_tween.kill()
+
+	if duration <= 0.0:
+		return
+
+	modulate.a = 1.0
+	_transition_fade_tween = create_tween()
+	_transition_fade_tween.set_trans(Tween.TRANS_SINE)
+	_transition_fade_tween.set_ease(Tween.EASE_IN)
+	_transition_fade_tween.tween_property(self, "modulate:a", 0.0, duration)
 
 func _stop_placement_tween(clear_target: bool = true) -> void:
 	if placementTween != null and placementTween.is_valid():
@@ -677,6 +703,8 @@ func _stop_slide_loop_audio() -> void:
 		slideLoopPlayer.stop()
 
 func _process(_delta: float) -> void:
+	update_perspective_scale()
+
 	if transition_locked:
 		return
 
@@ -692,6 +720,7 @@ func _process(_delta: float) -> void:
 	elif objectState == states.inLeftHand and thisObjectInLeftHand:
 		_update_hand_positions()
 		global_position = leftHandPosition
+
 
 
 func _next_object_z_index() -> int:

@@ -1,7 +1,7 @@
 shader_type canvas_item;
 
 uniform float blur_amount: hint_range(0.0, 10.0) = 0.0;
-uniform float blur_strength: hint_range(0.5, 3.0) = 0.5;
+uniform float blur_strength: hint_range(0.5, 3.0) = 0.9;
 
 void fragment() {
 	vec4 color = texture(TEXTURE, UV);
@@ -18,5 +18,5 @@ void fragment() {
 		color /= 25.0;
 	}
 	
-	COLOR = color;
+	COLOR = color * COLOR;
 }

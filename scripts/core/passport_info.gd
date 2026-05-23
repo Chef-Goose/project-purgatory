@@ -28,6 +28,7 @@ func set_character_data(character: CharacterData) -> void:
 	_update_display()
 
 
+
 func _process(_delta: float) -> void:
 	# Check if object state has changed (on table vs in hand)
 	if _game_object != null and "objectState" in _game_object:
