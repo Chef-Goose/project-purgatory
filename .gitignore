@@ -28,3 +28,7 @@ Thumbs.db
 
 # Godot crash dumps
 crash_log*.txt
+
+# Local secrets (Supabase keys, CI secrets)
+/config/secrets.cfg
+/config/secrets.env

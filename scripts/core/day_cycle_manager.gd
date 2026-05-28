@@ -94,6 +94,11 @@ func assign_fate(character: CharacterData, fate: String) -> void:
 	if fate in ["heaven", "hell"]:
 		character.fate_assigned = fate
 		characters_fated_today[character.character_id] = fate
+		var leaderboard := get_node_or_null("/root/Leaderboard") as SupabaseLeaderboard
+		if leaderboard:
+			leaderboard.record_vote(character.character_id, fate)
+		else:
+			push_warning("DayCycleManager: Leaderboard autoload not found; vote was not recorded.")
 		fate_assigned.emit(character, fate)
 
 
