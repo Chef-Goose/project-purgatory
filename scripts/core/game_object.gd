@@ -26,6 +26,7 @@ var rightHand: Node2D = null
 @export var drag_hover_speed: float = 30.0
 @export var hand_drop_screen_margin: float = 0.0
 @export var in_hand_z_index: int = 101
+@export var occupy_both_hands: bool = false
 @export var shadow_offset: Vector2 = Vector2(0.0, 40.0)
 @export var shadow_fade_speed: float = 30.0
 @export var shadow_max_alpha: float = 0.28
@@ -79,6 +80,7 @@ var shadowClipShader: Shader
 var dragVelocity: Vector2 = Vector2.ZERO
 var tableSlideVelocity: Vector2 = Vector2.ZERO
 var releasedDragThisFrame: bool = false
+var both_hands_y_offset: float = -160.0
 var outOfBoundsDropActive: bool = false
 var outOfBoundsDropTarget: Vector2 = Vector2.ZERO
 var outOfBoundsDropVelocity: Vector2 = Vector2.ZERO
@@ -95,9 +97,9 @@ var wasSliding: bool = false
 var slideAudioActiveThisFrame: bool = false
 var _transition_fade_tween: Tween
 
-enum floating {overTable, overLeftHand, overRightHand, overNothing}
+enum floating {overTable, overLeftHand, overRightHand, overBothHands, overNothing}
 var objectFloating : floating = floating.overTable
-enum states {onTable, inLeftHand, inRightHand}
+enum states {onTable, inLeftHand, inRightHand, inBothHands}
 var objectState : states = states.onTable
 
 @onready var shadowSprite: Sprite2D = $Shadow
@@ -197,8 +199,9 @@ func _update_hand_positions() -> void:
 
 # Updates the object's scale based on its position in the isometric perspective
 func update_perspective_scale() -> void:
-	if objectState == states.inLeftHand or objectState == states.inRightHand:
+	if _is_in_hand_state(objectState):
 		scale = originalScale
+		_sync_collision_shape_scale()
 		return
 
 	# Project the object onto the table's far-to-near diagonal so both X and Y affect scale.
@@ -213,6 +216,15 @@ func update_perspective_scale() -> void:
 	# Interpolate between min and max scale, then apply it on top of the authored transform scale.
 	var target_scale = lerp(perspective_min_scale, perspective_max_scale, normalized_position)
 	scale = originalScale * target_scale
+	_sync_collision_shape_scale()
+
+
+func _sync_collision_shape_scale() -> void:
+	if object_collision_polygon == null:
+		return
+
+	object_collision_polygon.position = objectSprite.position
+	object_collision_polygon.scale = objectSprite.scale
 
 func update_drag_presentation(delta: float) -> void:
 	var blend = min(1.0, drag_hover_speed * delta)
@@ -469,12 +481,12 @@ func _is_hand_anchor_active(hand_anchor: Node2D, hand_position: Vector2) -> bool
 	return _is_world_position_on_screen(hand_position, hand_drop_screen_margin)
 
 func _force_drop_from_hand() -> void:
-	var was_in_hand = thisObjectInRightHand or thisObjectInLeftHand or objectState == states.inRightHand or objectState == states.inLeftHand
-	if thisObjectInRightHand or objectState == states.inRightHand:
+	var was_in_hand = thisObjectInRightHand or thisObjectInLeftHand or _is_in_hand_state(objectState)
+	if thisObjectInRightHand or objectState == states.inRightHand or objectState == states.inBothHands:
 		_release_hand(HAND_RIGHT)
 		thisObjectInRightHand = false
 
-	if thisObjectInLeftHand or objectState == states.inLeftHand:
+	if thisObjectInLeftHand or objectState == states.inLeftHand or objectState == states.inBothHands:
 		_release_hand(HAND_LEFT)
 		thisObjectInLeftHand = false
 
@@ -1171,6 +1183,10 @@ func hand_handler():
 
 	# State transitions are only evaluated on release frames so hands cannot auto-capture.
 	if releasedDragThisFrame:
+		if objectFloating == floating.overBothHands:
+			objectState = states.inBothHands
+			play_hand_pickup_sound()
+			return
 		if objectFloating == floating.overRightHand:
 			objectState = states.inRightHand
 			play_hand_pickup_sound()
@@ -1178,18 +1194,20 @@ func hand_handler():
 			objectState = states.inLeftHand
 			play_hand_pickup_sound()
 		else:
-			if (objectState == states.inRightHand or objectState == states.inLeftHand) and objectFloating == floating.overTable:
+			if _is_in_hand_state(objectState) and objectFloating == floating.overTable:
 				play_hand_drop_sound()
 			objectState = states.onTable
 		return
 
 	# Between releases, preserve held state if already claimed.
+	if objectState == states.inBothHands and thisObjectInRightHand and thisObjectInLeftHand:
+		return
 	if objectState == states.inRightHand and thisObjectInRightHand:
 		return
 	if objectState == states.inLeftHand and thisObjectInLeftHand:
 		return
 
-	if (objectState == states.inRightHand or objectState == states.inLeftHand) and objectFloating == floating.overTable:
+	if _is_in_hand_state(objectState) and objectFloating == floating.overTable:
 		play_hand_drop_sound()
 	objectState = states.onTable
 
@@ -1211,7 +1229,14 @@ func placement_handler():
 		_stop_placement_tween()
 		return
 
-	if objectState == states.inRightHand:
+	if objectState == states.inBothHands:
+		tableSlideVelocity = Vector2.ZERO
+		z_index = _clamped_in_hand_z_index()
+		animate_to_position(_both_hands_target_position())
+		_claim_both_hands()
+		thisObjectInLeftHand = true
+		thisObjectInRightHand = true
+	elif objectState == states.inRightHand:
 		tableSlideVelocity = Vector2.ZERO
 		z_index = _clamped_in_hand_z_index()
 		if placementTween != null and placementTween.is_valid():
@@ -1244,12 +1269,12 @@ func placement_handler():
 	elif objectFloating == floating.overNothing:
 		animate_to_position(previousPosition)
 	
-	if objectState != states.inRightHand and thisObjectInRightHand:
+	if objectState != states.inRightHand and objectState != states.inBothHands and thisObjectInRightHand:
 		_release_hand(HAND_RIGHT)
 		thisObjectInRightHand = false
 		z_index = defaultZIndex
 	
-	if objectState != states.inLeftHand and thisObjectInLeftHand:
+	if objectState != states.inLeftHand and objectState != states.inBothHands and thisObjectInLeftHand:
 		_release_hand(HAND_LEFT)
 		thisObjectInLeftHand = false
 		z_index = defaultZIndex
@@ -1310,6 +1335,13 @@ func _refresh_floating_state_from_overlaps() -> void:
 	var overlapping_areas: Array[Area2D] = $Area2D.get_overlapping_areas()
 	objectFloating = floating.overNothing
 	var can_place_in_hands = _can_be_placed_in_hands()
+	var can_place_in_both_hands = occupy_both_hands and _are_both_hands_available()
+
+	if can_place_in_both_hands:
+		for area in overlapping_areas:
+			if area.get_collision_layer_value(2) or area.get_collision_layer_value(3):
+				objectFloating = floating.overBothHands
+				return
 
 	# Priority is explicit so overlap ordering cannot cause random outcomes.
 	if can_place_in_hands:
@@ -1328,3 +1360,25 @@ func _refresh_floating_state_from_overlaps() -> void:
 		if area.get_collision_layer_value(1):
 			objectFloating = floating.overTable
 			return
+
+
+func _is_in_hand_state(current_state: int) -> bool:
+	return current_state == states.inLeftHand or current_state == states.inRightHand or current_state == states.inBothHands
+
+
+func _are_both_hands_available() -> bool:
+	return _is_hand_available(HAND_LEFT, thisObjectInLeftHand) and _is_hand_available(HAND_RIGHT, thisObjectInRightHand)
+
+
+func _claim_both_hands() -> void:
+	_claim_hand(HAND_LEFT)
+	_claim_hand(HAND_RIGHT)
+
+
+func _both_hands_target_position() -> Vector2:
+	return ((leftHandPosition + rightHandPosition) * 0.5) + Vector2(0.0, both_hands_y_offset)
+
+
+func _release_both_hands() -> void:
+	_release_hand(HAND_LEFT)
+	_release_hand(HAND_RIGHT)

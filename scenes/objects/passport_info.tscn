@@ -1,35 +1,33 @@
 [gd_scene format=3 uid="uid://duglha4wp5ydx"]
 
 [ext_resource type="PackedScene" uid="uid://bs8h3p8q8bnge" path="res://scenes/objects/game_object.tscn" id="1_base"]
-[ext_resource type="Texture2D" uid="uid://benr7m8oq8esp" path="res://assets/testing/Paper A.png" id="2_paper"]
+[ext_resource type="Texture2D" uid="uid://b0yuvccg42xha" path="res://assets/art/objects/dossier.png" id="2_vmoh4"]
 [ext_resource type="Script" uid="uid://8du4imq0h604" path="res://scripts/core/passport_info.gd" id="3_passport"]
 
 [node name="passport_info" unique_id=1725281340 instance=ExtResource("1_base")]
+occupy_both_hands = true
+
+[node name="Shadow" parent="." index="0" unique_id=79335273]
+texture = ExtResource("2_vmoh4")
 
 [node name="object" parent="." index="1" unique_id=505279869]
-texture = ExtResource("2_paper")
+texture = ExtResource("2_vmoh4")
 
 [node name="PassportDisplay" type="Node2D" parent="object" index="0" unique_id=762075480]
-scale = Vector2(1.3333334, 1.3333334)
 script = ExtResource("3_passport")
 
-[node name="InfoLabel" type="Label" parent="object/PassportDisplay" index="0" unique_id=1351060532]
+[node name="InfoLabel" type="RichTextLabel" parent="object/PassportDisplay" index="0" unique_id=1351060532]
+modulate = Color(0.012617188, 0.012617188, 0.012617188, 1)
+self_modulate = Color(0.012617188, 0.012617188, 0.012617188, 1)
 z_index = 1
-custom_minimum_size = Vector2(120, 120)
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -60.0
-offset_top = -60.0
-offset_right = 60.0
-offset_bottom = 60.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/font_size = 14
-text = "Loading..."
-horizontal_alignment = 1
-vertical_alignment = 1
+clip_contents = false
+offset_left = -108.0
+offset_top = -128.0
+offset_right = 111.0
+offset_bottom = 128.0
+mouse_filter = 2
+bbcode_enabled = true
+text = "Loading dossier..."
+scroll_active = false
 autowrap_mode = 2
-clip_text = true
+metadata/_edit_use_anchors_ = true

@@ -181,10 +181,16 @@ func _create_placeholder_characters() -> void:
 	sample_portrait_set.angry_texture = preload("res://assets/art/characters/SampleSam/samplesamangry.png")
 	sample_portrait_set.sad_texture = preload("res://assets/art/characters/SampleSam/samplesamsad.png")
 
-	var char1 = CharacterData.new("Wayne", "wayne")
+	var char1 = CharacterData.new("Wigger Wayne", "wayne")
 	char1.description = "A spreadsheet enthusiast with questionable moral priorities."
 	char1.morality_weight = -0.3
-	char1.passport_info = {"occupation": "Account Manager", "age": "45"}
+	char1.passport_info = {
+		"occupation": "Pimp",
+		"age": "45",
+		"cause_of_death": "Domestic dispute in which he killed his wife, pounded 50 monsters after and died of heart attack.",
+		"good_points": ["Nice to watch UFC with"],
+		"bad_points": ["Abuses women when caffinated"]
+	}
 	char1.portrait_set = sample_portrait_set
 	char1.default_dialogue_slot = "start"
 	char1.dialogue_resource_path = "res://scripts/dialogue/wayne_intro.dialogue"
@@ -192,7 +198,13 @@ func _create_placeholder_characters() -> void:
 	var char2 = CharacterData.new("Pepsi Man", "pepsi_man")
 	char2.description = "FUELED."
 	char2.morality_weight = 0.8
-	char2.passport_info = {"occupation": "RUNNER/DELIVERER", "age": "62"}
+	char2.passport_info = {
+		"occupation": "RUNNER/DELIVERER",
+		"age": "62",
+		"cause_of_death": "Ran out of road before he ran out of energy.",
+		"good_points": ["Never misses a deadline", "Motivated", "Knows every shortcut"],
+		"bad_points": ["Does not take no for answer", 'Promotes sugary drink as "cool" to kids', "Runs through and injures pedestrians with no care"]
+	}
 	char2.portrait_set = sample_portrait_set
 	char2.default_dialogue_slot = "start"
 	char2.dialogue_resource_path = "res://scripts/dialogue/pepsi_man_intro.dialogue"
@@ -200,7 +212,13 @@ func _create_placeholder_characters() -> void:
 	var char3 = CharacterData.new("Derrick", "derrick")
 	char3.description = "Social media personality with unclear ethics."
 	char3.morality_weight = -0.1
-	char3.passport_info = {"occupation": "Content Creator", "age": "28"}
+	char3.passport_info = {
+		"occupation": "Karaoke Bar Worker",
+		"age": "28",
+		"cause_of_death": "Broke carotid artery by singing A Whole New World loudly.",
+		"good_points": ["Whimsy", "Doesn't care what others think"],
+		"bad_points": ["Takes the stage so often they ignore others", "Destroys too much soju"]
+	}
 	char3.portrait_set = sample_portrait_set
 	char3.default_dialogue_slot = "start"
 	char3.dialogue_resource_path = "res://scripts/dialogue/derrick_intro.dialogue"

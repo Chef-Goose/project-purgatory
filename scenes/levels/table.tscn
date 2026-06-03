@@ -9,7 +9,6 @@
 [ext_resource type="PackedScene" uid="uid://xw0q526hvxl2" path="res://scenes/ui/table_hands.tscn" id="7_hf3q9"]
 [ext_resource type="PackedScene" uid="uid://d023sacoglnm8" path="res://scenes/objects/cocktail.tscn" id="8_hc0a1"]
 [ext_resource type="PackedScene" uid="uid://cu77eiqb75ldp" path="res://scenes/objects/mallard_duck.tscn" id="9_6oaw3"]
-[ext_resource type="PackedScene" uid="uid://duglha4wp5ydx" path="res://scenes/objects/passport_info.tscn" id="11_passport_info"]
 [ext_resource type="PackedScene" uid="uid://b1qiybsajbqk8" path="res://scenes/characters/singleframe_table_character.tscn" id="15_fqvaw"]
 [ext_resource type="PackedScene" uid="uid://1sdpebm0q8rq" path="res://scenes/ui/dialogue_ui.tscn" id="16_osr7f"]
 [ext_resource type="Resource" uid="uid://ciy7ma7h3vt44" path="res://scripts/dialogue/samplesamexample.dialogue" id="17_3s3c0"]
@@ -106,9 +105,6 @@ position = Vector2(-623, -424)
 
 [node name="TargetLookClick" type="Marker2D" parent="CameraZones/HandsLook" unique_id=1895829327]
 position = Vector2(-360, -282)
-
-[node name="PassportInfo" parent="." unique_id=1338894969 instance=ExtResource("11_passport_info")]
-position = Vector2(-165, -306)
 
 [node name="PassportSpawnPoint" type="Marker2D" parent="." unique_id=1987345612]
 position = Vector2(-162, -297)
