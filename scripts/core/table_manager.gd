@@ -125,6 +125,8 @@ func _update_passport_info() -> void:
 	# Update the passport info display with current character data
 	var passport_display = passport_info.get_node_or_null("object/PassportDisplay") as PassportInfo
 	if passport_display and current_character:
+		if passport_display.has_signal("dossier_question_selected") and not passport_display.dossier_question_selected.is_connected(_on_dossier_question_selected):
+			passport_display.dossier_question_selected.connect(_on_dossier_question_selected)
 		passport_display.set_character_data(current_character)
 
 
@@ -233,8 +235,32 @@ func _on_character_camera_snap_completed() -> void:
 func _on_dialogue_finished() -> void:
 	_dialogue_active = false
 	_awaiting_dialogue_start = false
+	if passport_info != null and is_instance_valid(passport_info):
+		passport_info.visible = true
 	fate_ui.set_fate_button_visible(true)
 	camera_controller.set_interaction_locked(fate_ui != null and fate_ui.is_panel_open())
+	if dialogue_ui != null:
+		dialogue_ui.visible = false
+
+
+func _on_dossier_question_selected(question_slot: String) -> void:
+	if current_character == null or _dialogue_active or _awaiting_dialogue_start:
+		return
+
+	if passport_info != null and is_instance_valid(passport_info):
+		passport_info.visible = false
+
+	_dialogue_active = true
+	fate_ui.set_fate_button_visible(false)
+	camera_controller.set_interaction_locked(true)
+
+	if dialogue_ui != null:
+		dialogue_ui.visible = true
+		dialogue_ui.start_for_character(current_character, question_slot)
+	else:
+		_dialogue_active = false
+		if passport_info != null and is_instance_valid(passport_info):
+			passport_info.visible = true
 
 
 func _on_fate_panel_visibility_changed(is_visible: bool) -> void:
@@ -268,6 +294,8 @@ func _on_current_character_changed(character: CharacterData) -> void:
 	current_character = character
 	_dialogue_active = false
 	_awaiting_dialogue_start = false
+	if passport_info != null and is_instance_valid(passport_info):
+		passport_info.visible = true
 	if dialogue_ui != null:
 		dialogue_ui.visible = false
 		dialogue_ui.set_process_unhandled_input(true)

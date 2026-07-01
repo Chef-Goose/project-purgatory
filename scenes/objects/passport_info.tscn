@@ -15,16 +15,51 @@ texture = ExtResource("2_vmoh4")
 
 [node name="PassportDisplay" type="Node2D" parent="object" index="0" unique_id=762075480]
 script = ExtResource("3_passport")
+title_font_size = 36
+title_horizontal_offset = 0.0
+body_font_size = 18
 
-[node name="InfoLabel" type="RichTextLabel" parent="object/PassportDisplay" index="0" unique_id=1351060532]
-modulate = Color(0.012617188, 0.012617188, 0.012617188, 1)
-self_modulate = Color(0.012617188, 0.012617188, 0.012617188, 1)
-z_index = 1
+[node name="InfoLayer" type="CanvasLayer" parent="object/PassportDisplay" index="0" unique_id=2141576321]
+layer = 2
+
+[node name="DossierPage" type="Control" parent="object/PassportDisplay/InfoLayer" index="0" unique_id=1351060532]
+z_index = 10
+clip_contents = true
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="TitleContainer" type="Control" parent="object/PassportDisplay/InfoLayer/DossierPage" index="0" unique_id=195071323]
+anchors_preset = 0
+mouse_filter = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="TitleLabel" type="RichTextLabel" parent="object/PassportDisplay/InfoLayer/DossierPage/TitleContainer" index="0" unique_id=1054022320]
+modulate = Color(0, 0, 0, 1)
+self_modulate = Color(0, 0, 0, 1)
+z_index = 12
 clip_contents = false
-offset_left = -108.0
-offset_top = -128.0
-offset_right = 111.0
-offset_bottom = 128.0
+layout_mode = 0
+mouse_filter = 2
+bbcode_enabled = true
+text = "PERSONAL DOSSIER"
+scroll_active = false
+autowrap_mode = 2
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="BodyContainer" type="Control" parent="object/PassportDisplay/InfoLayer/DossierPage" index="1" unique_id=402700785]
+anchors_preset = 0
+mouse_filter = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="BodyLabel" type="RichTextLabel" parent="object/PassportDisplay/InfoLayer/DossierPage/BodyContainer" index="0" unique_id=214543901]
+modulate = Color(0, 0, 0, 1)
+self_modulate = Color(0, 0, 0, 1)
+z_index = 12
+clip_contents = false
+layout_mode = 0
 mouse_filter = 2
 bbcode_enabled = true
 text = "Loading dossier..."
